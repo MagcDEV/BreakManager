@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: break
+    ports:
+      - "5432:5432"
+    volumes:
+      - break_data:/var/lib/postgresql/data
+
+volumes:
+  break_data:
