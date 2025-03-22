@@ -6,11 +6,11 @@ namespace Break.Application.Repositories;
 
 public class ItemRepository(BreakAppDbContext dbContext) : IItemRepository
 {
-    public async Task<bool> AddItemAsync(Item item)
+    public async Task<Item> AddItemAsync(Item item)
     {
         var addedItem = await dbContext.Items.AddAsync(item);
         await dbContext.SaveChangesAsync();
-        return addedItem.State == EntityState.Added;
+        return addedItem.Entity;
     }
 
     public async Task<bool> DeleteItemAsync(int itemId)

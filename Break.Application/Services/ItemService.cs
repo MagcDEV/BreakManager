@@ -5,7 +5,7 @@ namespace Break.Application.Services;
 
 public class ItemService(IItemRepository itemRepository) : IItemService
 {
-    public Task<bool> AddItemAsync(Item item)
+    public Task<Item> AddItemAsync(Item item)
     {
         return itemRepository.AddItemAsync(item);
     }
