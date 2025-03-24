@@ -44,4 +44,28 @@ public static class ContractMapping
             LastUpdated = item.LastUpdated,
         };
     }
+
+    public static Item MapToItem(this UpdateItemRequest request)
+    {
+        return new Item
+        {
+            ProductCode = request.ProductCode,
+            Barcode = request.Barcode,
+            ProductName = request.ProductName,
+            ProductDescription = request.ProductDescription,
+            ProductCategory = request.ProductCategory,
+            ReorderQuantity = request.ReorderQuantity,
+            UnitPrice = request.UnitPrice,
+            QuantityInStock = request.QuantityInStock,
+            MinimumStockLevel = request.MinimumStockLevel,
+            MaximumStockLevel = request.MaximumStockLevel,
+            DateAdded = request.DateAdded,
+            LastUpdated = request.LastUpdated,
+        };
+    }
+
+    public static IEnumerable<ItemResponse> MapToItemResponse(this IEnumerable<Item> items)
+    {
+        return items.Select(item => item.MapToItemResponse());
+    }
 }

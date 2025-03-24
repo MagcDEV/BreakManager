@@ -7,16 +7,17 @@ public class Sale
 {
     public int SaleId { get; set; }
     
-    [Required]
     public DateTime SaleDate { get; set; } = DateTime.UtcNow;
     
     [Column(TypeName = "decimal(10,2)")]
-    public decimal TotalAmount { get; set; }
+    public decimal SubTotal { get; set; }
     
-    public int? CustomerId { get; set; }
+    [Column(TypeName = "decimal(10,2)")]
+    public decimal DiscountAmount { get; set; }
     
-    [MaxLength(50)]
-    public required string OrderStatus { get; set; }
-
-    public ICollection<SaleItem>? SaleItems { get; set; }
+    [Column(TypeName = "decimal(10,2)")]
+    public decimal Total { get; set; }
+    
+    public ICollection<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
+    public ICollection<AppliedOffer> AppliedOffers { get; set; } = new List<AppliedOffer>();
 }
