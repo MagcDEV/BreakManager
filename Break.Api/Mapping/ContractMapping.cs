@@ -71,6 +71,16 @@ public static class ContractMapping
         };
     }
 
+    public static User MapToUser(this RegisterUserRequest request)
+    {
+        return new User
+        {
+            Username = request.Username,
+            Email = request.Email,
+            Roles = request.Roles
+        };
+    }
+
     public static IEnumerable<ItemResponse> MapToItemResponse(this IEnumerable<Item> items)
     {
         return items.Select(item => item.MapToItemResponse());

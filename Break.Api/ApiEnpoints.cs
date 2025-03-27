@@ -36,4 +36,12 @@ public static class ApiEnpoints
         public const string UpdateSale = $"{Base}/{{id:int}}";
         public const string DeleteSale = $"{Base}/{{id:int}}";
     }
+
+    public static class Auth
+    {
+        private const string Base = $"{ApiBase}/auth";
+
+        public const string Register = $"{Base}/register";
+        public const string Login = $"{Base}/login";
+    }
 }
