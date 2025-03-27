@@ -1,11 +1,13 @@
-using Break.Application.Database;
 using Break.Application.Models;
 using Break.Application.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Break.Application.Services;
 
-public class SaleService(BreakAppDbContext dbContext, IOfferRepository offerRepository)
+public class SaleService(
+    IOfferRepository offerRepository,
+    ISaleRepository saleRepository,
+    IItemRepository itemRepository)
     : ISaleService
 {
     public async Task<Sale> CreateSaleAsync(
@@ -19,9 +21,10 @@ public class SaleService(BreakAppDbContext dbContext, IOfferRepository offerRepo
 
         // Load item details from database
         var itemIds = items.Select(i => i.ItemId).ToList();
-        var dbItems = await dbContext.Items.Where(i => itemIds.Contains(i.ItemId)).ToListAsync();
+        var dbItems = await itemRepository.GetItemsAsync();
+        dbItems = dbItems.Where(i => itemIds.Contains(i.ItemId)).ToList();
 
-        if (dbItems.Count != itemIds.Distinct().Count())
+        if (dbItems.Count() != itemIds.Distinct().Count())
             throw new ArgumentException("One or more items not found");
 
         // Create new sale
@@ -54,8 +57,7 @@ public class SaleService(BreakAppDbContext dbContext, IOfferRepository offerRepo
         sale.Total = sale.SubTotal - sale.DiscountAmount;
 
         // Save to database
-        dbContext.Sales.Add(sale);
-        await dbContext.SaveChangesAsync();
+        await saleRepository.SaveSaleAsync(sale);
 
         return sale;
     }

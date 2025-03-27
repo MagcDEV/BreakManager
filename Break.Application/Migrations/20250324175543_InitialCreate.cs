@@ -63,9 +63,9 @@ namespace Break.Application.Migrations
                     SaleId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SaleDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
-                    CustomerId = table.Column<int>(type: "integer", nullable: true),
-                    OrderStatus = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    SubTotal = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -128,6 +128,33 @@ namespace Break.Application.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppliedOffer",
+                columns: table => new
+                {
+                    AppliedOfferId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SaleId = table.Column<int>(type: "integer", nullable: false),
+                    OfferId = table.Column<int>(type: "integer", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppliedOffer", x => x.AppliedOfferId);
+                    table.ForeignKey(
+                        name: "FK_AppliedOffer_Offers_OfferId",
+                        column: x => x.OfferId,
+                        principalTable: "Offers",
+                        principalColumn: "OfferId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppliedOffer_Sales_SaleId",
+                        column: x => x.SaleId,
+                        principalTable: "Sales",
+                        principalColumn: "SaleId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SaleItems",
                 columns: table => new
                 {
@@ -137,7 +164,7 @@ namespace Break.Application.Migrations
                     ItemId = table.Column<int>(type: "integer", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
-                    DiscountAmount = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
+                    LineTotal = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -155,6 +182,16 @@ namespace Break.Application.Migrations
                         principalColumn: "SaleId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppliedOffer_OfferId",
+                table: "AppliedOffer",
+                column: "OfferId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppliedOffer_SaleId",
+                table: "AppliedOffer",
+                column: "SaleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Items_Barcode",
@@ -197,6 +234,9 @@ namespace Break.Application.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AppliedOffer");
+
             migrationBuilder.DropTable(
                 name: "OfferConditions");
 

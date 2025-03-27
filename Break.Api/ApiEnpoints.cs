@@ -25,4 +25,15 @@ public static class ApiEnpoints
         public const string UpdateOffer = $"{Base}/{{id:int}}";
         public const string DeleteOffer = $"{Base}/{{id:int}}";
     }
+
+    public static class Sale
+    {
+        private const string Base = $"{ApiBase}/sale";
+
+        public const string CreateSale = Base;
+        public const string GetSale = $"{Base}/{{id:int}}";
+        public const string GetAllSales = Base;
+        public const string UpdateSale = $"{Base}/{{id:int}}";
+        public const string DeleteSale = $"{Base}/{{id:int}}";
+    }
 }

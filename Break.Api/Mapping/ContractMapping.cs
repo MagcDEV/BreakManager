@@ -25,6 +25,13 @@ public static class ContractMapping
         };
     }
 
+    public static IEnumerable<(int ItemId, int Quantity)> MapToSaleItems(
+        this CreateSaleRequest request
+    )
+    {
+        return request.Items.Select(item => (item.ItemId, item.Quantity));
+    }
+
     public static ItemResponse MapToItemResponse(this Item item)
     {
         return new ItemResponse

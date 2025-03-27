@@ -22,6 +22,32 @@ namespace Break.Application.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Break.Application.Models.AppliedOffer", b =>
+                {
+                    b.Property<int>("AppliedOfferId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AppliedOfferId"));
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SaleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AppliedOfferId");
+
+                    b.HasIndex("OfferId");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("AppliedOffer");
+                });
+
             modelBuilder.Entity("Break.Application.Models.Item", b =>
                 {
                     b.Property<int>("ItemId")
@@ -175,18 +201,16 @@ namespace Break.Application.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SaleId"));
 
-                    b.Property<int?>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("Total")
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("SaleId");
@@ -202,11 +226,11 @@ namespace Break.Application.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SaleItemId"));
 
-                    b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("decimal(10,2)");
-
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -239,6 +263,25 @@ namespace Break.Application.Migrations
                     b.HasIndex("OffersOfferId");
 
                     b.ToTable("OfferItems", (string)null);
+                });
+
+            modelBuilder.Entity("Break.Application.Models.AppliedOffer", b =>
+                {
+                    b.HasOne("Break.Application.Models.Offer", "Offer")
+                        .WithMany()
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Break.Application.Models.Sale", "Sale")
+                        .WithMany("AppliedOffers")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Offer");
+
+                    b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("Break.Application.Models.OfferCondition", b =>
@@ -305,6 +348,8 @@ namespace Break.Application.Migrations
 
             modelBuilder.Entity("Break.Application.Models.Sale", b =>
                 {
+                    b.Navigation("AppliedOffers");
+
                     b.Navigation("SaleItems");
                 });
 #pragma warning restore 612, 618
