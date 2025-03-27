@@ -11,11 +11,6 @@ public class SaleController(ISaleService saleService) : ControllerBase
     [HttpPost(ApiEnpoints.Sale.CreateSale)]
     public async Task<IActionResult> CreateSale([FromBody] CreateSaleRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var saleItems = request.MapToSaleItems().ToList();
 
         var sale = await saleService.CreateSaleAsync(saleItems, request.CouponCode);
