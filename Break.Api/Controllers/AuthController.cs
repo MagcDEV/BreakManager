@@ -30,7 +30,7 @@ public class AuthController(IUserService userService) : ControllerBase
     }
 
     [HttpPost(ApiEnpoints.Auth.Register)]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         var newUser = request.MapToUser();
