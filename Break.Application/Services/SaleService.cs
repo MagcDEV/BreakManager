@@ -7,8 +7,8 @@ namespace Break.Application.Services;
 public class SaleService(
     IOfferRepository offerRepository,
     ISaleRepository saleRepository,
-    IItemRepository itemRepository)
-    : ISaleService
+    IItemRepository itemRepository
+) : ISaleService
 {
     public async Task<Sale> CreateSaleAsync(
         List<(int ItemId, int Quantity)> items,
@@ -27,6 +27,15 @@ public class SaleService(
         if (dbItems.Count() != itemIds.Distinct().Count())
             throw new ArgumentException("One or more items not found");
 
+        // Check if there's enough stock for all items
+        foreach (var (itemId, quantity) in items)
+        {
+            var dbItem = dbItems.First(i => i.ItemId == itemId);
+            if (dbItem.QuantityInStock < quantity)
+                throw new InvalidOperationException(
+                    $"Not enough stock for item {dbItem.ProductName}. Available: {dbItem.QuantityInStock}, Requested: {quantity}"
+                );
+        }
         // Create new sale
         var sale = new Sale { SaleDate = DateTime.UtcNow };
 
@@ -45,6 +54,10 @@ public class SaleService(
             };
 
             sale.SaleItems.Add(saleItem);
+
+            // Update inventory quantity
+            dbItem.QuantityInStock -= quantity;
+            dbItem.LastUpdated = DateTime.UtcNow;
         }
 
         // Calculate subtotal
@@ -56,10 +69,31 @@ public class SaleService(
         // Calculate final total
         sale.Total = sale.SubTotal - sale.DiscountAmount;
 
+        // Save updated items to database
+        foreach (var item in dbItems)
+        {
+            await itemRepository.UpdateItemAsync(item);
+        }
+
         // Save to database
         await saleRepository.SaveSaleAsync(sale);
 
         return sale;
+    }
+
+    public async Task<Sale?> GetSaleByIdAsync(int saleId)
+    {
+        return await saleRepository.GetSaleByIdAsync(saleId);
+    }
+
+    public async Task<List<Sale>> GetAllSalesAsync()
+    {
+        return await saleRepository.GetAllSalesAsync();
+    }
+
+    public async Task<bool> DeleteSaleAsync(int saleId)
+    {
+        return await saleRepository.DeleteSaleAsync(saleId);
     }
 
     public async Task<decimal> CalculateDiscountAsync(

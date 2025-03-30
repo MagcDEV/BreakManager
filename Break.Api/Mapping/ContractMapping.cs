@@ -85,4 +85,35 @@ public static class ContractMapping
     {
         return items.Select(item => item.MapToItemResponse());
     }
+
+    public static SaleResponse MapToSaleResponse(this Sale sale)
+    {
+        return new SaleResponse
+        {
+            SaleId = sale.SaleId,
+            SaleDate = sale.SaleDate,
+            SubTotal = sale.SubTotal,
+            DiscountAmount = sale.DiscountAmount,
+            Total = sale.Total,
+            SaleItems = sale.SaleItems.Select(si => si.MapToSaleItemResponse()).ToList()
+        };
+    }
+
+    public static SaleItemResponse MapToSaleItemResponse(this SaleItem saleItem)
+    {
+        return new SaleItemResponse
+        {
+            SaleItemId = saleItem.SaleItemId,
+            ItemId = saleItem.ItemId,
+            ProductName = saleItem.Item?.ProductName,
+            Quantity = saleItem.Quantity,
+            UnitPrice = saleItem.UnitPrice,
+            LineTotal = saleItem.LineTotal
+        };
+    }
+
+    public static IEnumerable<SaleResponse> MapToSaleResponse(this IEnumerable<Sale> sales)
+    {
+        return sales.Select(sale => sale.MapToSaleResponse());
+    }
 }
