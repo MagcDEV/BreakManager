@@ -86,12 +86,14 @@ public static class ContractMapping
         return items.Select(item => item.MapToItemResponse());
     }
 
+
     public static SaleResponse MapToSaleResponse(this Sale sale)
     {
         return new SaleResponse
         {
             SaleId = sale.SaleId,
             SaleDate = sale.SaleDate,
+            Status = sale.Status.ToString(),
             SubTotal = sale.SubTotal,
             DiscountAmount = sale.DiscountAmount,
             Total = sale.Total,

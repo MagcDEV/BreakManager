@@ -35,6 +35,8 @@ public static class ApiEnpoints
         public const string GetAllSales = Base;
         public const string UpdateSale = $"{Base}/{{id:int}}";
         public const string DeleteSale = $"{Base}/{{id:int}}";
+        public const string ConfirmSale = $"{Base}/{{id:int}}/confirm";
+        public const string CancelSale = $"{Base}/{{id:int}}/cancel";
     }
 
     public static class Auth

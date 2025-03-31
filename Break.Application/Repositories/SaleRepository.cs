@@ -41,4 +41,11 @@ public class SaleRepository(BreakAppDbContext dbContext) : ISaleRepository
         await dbContext.SaveChangesAsync();
         return true;
     }
+
+    public async Task<Sale> UpdateSaleAsync(Sale sale)
+    {
+        dbContext.Entry(sale).State = EntityState.Modified;
+        await dbContext.SaveChangesAsync();
+        return sale;
+    }
 }

@@ -8,4 +8,5 @@ public interface ISaleRepository
     Task<Sale?> GetSaleByIdAsync(int saleId);
     Task<List<Sale>> GetAllSalesAsync();
     Task<bool> DeleteSaleAsync(int saleId);
+    Task<Sale> UpdateSaleAsync(Sale sale);
 }

@@ -168,6 +168,59 @@ public class SaleService(
         }
     }
 
+    public async Task<Sale?> ConfirmSaleAsync(int saleId)
+    {
+        var sale = await saleRepository.GetSaleByIdAsync(saleId);
+        if (sale == null)
+            return null;
+
+        // Only draft sales can be confirmed
+        if (sale.Status != SaleStatus.Draft)
+            throw new InvalidOperationException($"Cannot confirm sale with status {sale.Status}");
+
+        // Verify stock availability again before confirming
+        foreach (var saleItem in sale.SaleItems)
+        {
+            var item = await itemRepository.GetItemAsync(saleItem.ItemId);
+            if (item == null || item.QuantityInStock < saleItem.Quantity)
+                throw new InvalidOperationException(
+                    $"Not enough stock for item {item?.ProductName ?? saleItem.ItemId.ToString()}. Available: {item?.QuantityInStock ?? 0}, Requested: {saleItem.Quantity}"
+                );
+        }
+
+        // Update sale status
+        sale.Status = SaleStatus.Confirmed;
+        await saleRepository.UpdateSaleAsync(sale);
+        return sale;
+    }
+
+    public async Task<Sale?> CancelSaleAsync(int saleId)
+    {
+        var sale = await saleRepository.GetSaleByIdAsync(saleId);
+        if (sale == null)
+            return null;
+
+        // If the sale is already confirmed, we need to return items to inventory
+        if (sale.Status == SaleStatus.Confirmed)
+        {
+            foreach (var saleItem in sale.SaleItems)
+            {
+                var item = await itemRepository.GetItemAsync(saleItem.ItemId);
+                if (item != null)
+                {
+                    item.QuantityInStock += saleItem.Quantity;
+                    await itemRepository.UpdateItemAsync(item);
+                }
+            }
+        }
+
+        // Update sale status
+        sale.Status = SaleStatus.Canceled;
+        await saleRepository.UpdateSaleAsync(sale);
+        return sale;
+    }
+
+
     private bool IsOfferEligible(Offer offer, List<SaleItem> saleItems, decimal subtotal)
     {
         if (offer.OfferConditions == null || !offer.OfferConditions.Any())
