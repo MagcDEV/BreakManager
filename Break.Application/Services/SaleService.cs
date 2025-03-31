@@ -220,7 +220,6 @@ public class SaleService(
         return sale;
     }
 
-
     private bool IsOfferEligible(Offer offer, List<SaleItem> saleItems, decimal subtotal)
     {
         if (offer.OfferConditions == null || !offer.OfferConditions.Any())
