@@ -86,7 +86,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Break API v1"));
-    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
