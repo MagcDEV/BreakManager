@@ -1,0 +1,18 @@
+<!-- filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\app\app.component.html -->
+<header class="app-header">
+  <h1>{{ title }}</h1>
+  <nav class="app-nav">
+    <!-- Links will be conditionally shown later based on auth state -->
+    <a routerLink="/auth/login" routerLinkActive="active-link">Login</a>
+    <a routerLink="/auth/register" routerLinkActive="active-link">Register</a> <!-- This link -->
+    <!-- ... other links ... -->
+  </nav>
+</header>
+
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="app-footer">
+  <p>&copy; {{ currentYear }} Retail Store</p>
+</footer>

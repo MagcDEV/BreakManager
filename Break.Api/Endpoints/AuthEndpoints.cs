@@ -39,7 +39,7 @@ public static class AuthEndpoints
                     return Results.Created($"/users/{user.UserId}", null);
                 }
             )
-            .RequireAuthorization(policy => policy.RequireRole("admin"))
+            .AllowAnonymous()
             .WithName("Register");
 
         // Add additional auth-related endpoints here

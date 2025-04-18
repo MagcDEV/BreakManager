@@ -1,0 +1,128 @@
+<!-- filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\app\features\auth\components\register\register.component.html -->
+<div class="register-container">
+  <h2>Register New Account</h2>
+
+  <!-- Display general success messages using @if -->
+  @if (successMessage()) {
+    <div class="success-message">
+      <p>{{ successMessage() }}</p>
+    </div>
+  }
+
+  <!-- Display general error messages using @if -->
+  @if (errorMessage()) {
+    <div class="error-message">
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else if (registerForm.invalid && registerForm.touched) {
+    <!-- Show generic form error if specific field errors aren't visible -->
+    <div class="error-message">
+      <p>Please correct the errors highlighted below.</p>
+    </div>
+  }
+
+  <!-- Using novalidate to disable default browser validation, relying on Angular's validation -->
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Username Field -->
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        required
+        [attr.aria-invalid]="registerForm.controls.username.invalid && (registerForm.controls.username.dirty || registerForm.controls.username.touched)">
+      <!-- Using @if for conditional rendering (modern syntax) -->
+      @if (registerForm.controls.username.invalid && (registerForm.controls.username.dirty || registerForm.controls.username.touched)) {
+        <div class="validation-errors">
+          @if (registerForm.controls.username.errors?.['required']) {
+            <small>Username is required.</small>
+          }
+          @if (registerForm.controls.username.errors?.['minlength']) {
+            <small>Username must be at least 3 characters long.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Email Field -->
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        required
+        [attr.aria-invalid]="registerForm.controls.email.invalid && (registerForm.controls.email.dirty || registerForm.controls.email.touched)">
+      @if (registerForm.controls.email.invalid && (registerForm.controls.email.dirty || registerForm.controls.email.touched)) {
+        <div class="validation-errors">
+          @if (registerForm.controls.email.errors?.['required']) {
+            <small>Email is required.</small>
+          }
+          @if (registerForm.controls.email.errors?.['email']) {
+            <small>Please enter a valid email address.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Password Field -->
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        required
+        [attr.aria-invalid]="registerForm.controls.password.invalid && (registerForm.controls.password.dirty || registerForm.controls.password.touched)">
+      @if (registerForm.controls.password.invalid && (registerForm.controls.password.dirty || registerForm.controls.password.touched)) {
+        <div class="validation-errors">
+          @if (registerForm.controls.password.errors?.['required']) {
+            <small>Password is required.</small>
+          }
+          @if (registerForm.controls.password.errors?.['minlength']) {
+            <small>Password must be at least 6 characters long.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Confirm Password Field -->
+    <div class="form-field">
+      <label for="confirmPassword">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        type="password"
+        formControlName="confirmPassword"
+        required
+        [attr.aria-invalid]="(registerForm.controls.confirmPassword.invalid || registerForm.hasError('passwordsMismatch')) && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)">
+       <!-- Check both field-level and group-level validation -->
+       @if ((registerForm.controls.confirmPassword.invalid || registerForm.hasError('passwordsMismatch')) && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)) {
+        <div class="validation-errors">
+          @if (registerForm.controls.confirmPassword.errors?.['required']) {
+            <small>Password confirmation is required.</small>
+          }
+          <!-- Show mismatch error only if required error isn't present -->
+          @if (registerForm.hasError('passwordsMismatch') && !registerForm.controls.confirmPassword.errors?.['required']) {
+             <small>Passwords do not match.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Submit Button: Disabled state bound to form validity and loading signal -->
+    <button class="submit-button" type="submit" [disabled]="registerForm.invalid || isLoading()">
+      @if (isLoading()) {
+        <span>Registering...</span>
+        <!-- Optional: Add spinner SVG/component here -->
+      } @else {
+        <span>Register</span>
+      }
+    </button>
+
+    <!-- Link back to Login page -->
+    <div class="login-link">
+      <p>Already have an account? <a routerLink="/auth/login">Login here</a></p>
+    </div>
+  </form>
+</div>

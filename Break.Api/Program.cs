@@ -10,6 +10,23 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
+// Define a specific CORS policy name
+const string AllowSpecificOrigins = "_allowSpecificOrigins";
+
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowSpecificOrigins,
+                      policy  =>
+                      {
+                          // Allow the Angular development server origin
+                          policy.WithOrigins("http://localhost:4200")
+                                .AllowAnyHeader() // Allow common headers like Content-Type, Authorization
+                                .AllowAnyMethod(); // Allow common methods like GET, POST, PUT, DELETE, OPTIONS
+                          // Add .AllowCredentials() if you need to send cookies/auth headers with credentials
+                      });
+});
+
 // Authentication configuration
 builder
     .Services.AddAuthentication(options =>
@@ -89,6 +106,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(AllowSpecificOrigins);
+
 app.UseAuthentication(); // Make sure Authentication comes before Authorization
 app.UseAuthorization();
 

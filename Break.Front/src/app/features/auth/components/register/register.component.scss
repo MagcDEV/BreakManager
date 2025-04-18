@@ -1,0 +1,159 @@
+:host {
+  // Styles for the component host element itself
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; // Align to top in case content overflows
+  padding: 2rem 1rem;
+  // Example: Calculate min-height based on assumed header/footer height
+  // Adjust this value based on your actual app shell layout
+  min-height: calc(100vh - 150px);
+}
+
+.register-container {
+  // Styling for the main container box
+  width: 100%;
+  max-width: 450px; // Slightly wider than login for potentially more fields
+  padding: 2rem;
+  border: 1px solid var(--light-border); // Use global variable
+  border-radius: 8px;
+  background-color: #ffffff; // Standard white background
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); // Subtle shadow
+}
+
+h2 {
+  // Styling for the main heading
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-color); // Use global variable
+  font-weight: 600;
+}
+
+.form-field {
+  // Styling for each field group (label + input + validation)
+  margin-bottom: 1.25rem;
+
+  label {
+    display: block;
+    // Increased margin-bottom to add space between label and input
+    margin-bottom: 0.65rem;
+    font-weight: 500;
+    color: var(--text-muted); // Use global variable for muted text
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--light-border); // Use global variable
+    border-radius: 4px;
+    box-sizing: border-box; // Include padding/border in width/height
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color); // Use global variable
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); // Focus ring
+    }
+
+    // Style for invalid input state using ARIA attribute
+    &[aria-invalid="true"] {
+      border-color: var(--danger-color); // Use global variable
+      background-color: var(--danger-color-light); // Use global variable (optional light bg)
+
+      &:focus {
+         box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25); // Danger focus ring
+      }
+    }
+  }
+}
+
+.validation-errors {
+  // Styling for the container of validation messages
+  margin-top: 0.35rem; // Space above the error messages
+  small {
+    color: var(--danger-color); // Use global variable for error text
+    font-size: 0.8rem;
+    display: block; // Ensure each error is on a new line
+  }
+}
+
+.error-message {
+  // Styling for general form error messages (not field-specific)
+  background-color: var(--danger-color-light); // Use global variable
+  color: var(--danger-color); // Use global variable
+  border: 1px solid var(--danger-color); // Use global variable
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+
+  p { margin: 0; } // Remove default paragraph margin
+}
+
+.success-message {
+  // Styling for success feedback messages
+  // Consider adding --success-color-light to :root in styles.scss
+  background-color: #d4edda;
+  color: var(--success-color-dark); // Use global variable
+  border: 1px solid var(--success-color); // Use global variable
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+
+   p { margin: 0; }
+}
+
+.submit-button {
+  // Styling for the main action button (Register)
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--success-color); // Use global variable (Green for register)
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+  display: flex; // Allows centering content (text/spinner)
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem; // Space above the button
+
+  &:disabled {
+    background-color: var(--secondary-color); // Use global variable (Grey out when disabled)
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background-color: var(--success-color-dark); // Use global variable (Darker green on hover)
+  }
+
+  span {
+    margin: 0 0.25rem; // Space around text if spinner is added
+  }
+}
+
+// Style the link back to the login page
+.login-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+
+  a {
+    color: var(--primary-color); // Use global variable
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+      color: var(--primary-color-dark); // Use global variable
+    }
+  }
+}

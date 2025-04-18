@@ -1,99 +1,91 @@
-# Project Requirement Document: Angular Retail Sales & Inventory App
+# Copilot Instructions for Modern Angular Development (C#/.NET Background)
 
-**Version:** 1.0
-**Date:** 2025-04-16
+## Overall Goals & Style
 
-## 1. Introduction
+* **Modern Angular:** Prioritize features and patterns from Angular v16+ (Standalone APIs, Signals, Typed Forms).
+* **TypeScript First:** Leverage TypeScript's strong typing. Avoid `any` type whenever possible. Use interfaces and types extensively (similar to C#). Define clear data contracts.
+* **Readability & Maintainability:** Generate clean, well-commented, and organized code. Follow the official Angular Style Guide. Keep functions and files concise (e.g., functions < 75 lines, files < 400 lines).
+* **Performance:** Implement code that is performant by default (OnPush, trackBy, lazy loading).
+* **Security:** Follow security best practices (sanitization, avoiding risky patterns).
+* **Modularity & Reusability:** Design components and services to be reusable and self-contained.
 
-### 1.1 Purpose
-This document outlines the functional requirements for the Angular web application designed as a frontend for the `Break.Api`. The application will serve as a Point of Sale (POS) and Inventory Management system for a retail store environment.
+## Specific Instructions
 
-### 1.2 Scope
-**In Scope:**
-* User Authentication (Login, Registration).
-* Product (Item) Management (Create, Read, Update, Delete - CRUD).
-* Inventory Viewing (as part of Product details).
-* Inventory Level Updates (via Product update).
-* Sales Transaction Processing (Create, View List, View Details, Confirm, Cancel).
-* Basic reporting derived from available data (e.g., Sales List).
+### 1. Components
 
-**Out of Scope:**
-* Advanced Reporting (complex analytics, custom dashboards beyond simple lists/details).
-* Direct hardware integration (barcode scanners, receipt printers - beyond capturing input/displaying data).
-* Payment gateway integration (processing actual credit card payments).
-* Supplier/Purchase Order Management (unless implicitly part of Product).
-* Multi-location inventory management (API implies single stock count per product).
-* Offline capabilities.
+* **Prefer Standalone Components:** Generate new components as `standalone: true`. Include necessary dependencies (`imports` array) directly in the component decorator.
+    * Import `CommonModule` or specific directives/pipes (`NgIf`, `NgFor`, `AsyncPipe`, etc.) as needed, instead of the entire `CommonModule`.
+* **`ChangeDetectionStrategy.OnPush`:** Use `OnPush` change detection strategy by default for new components to optimize performance.
+* **Smart/Container & Dumb/Presentational Components:** Differentiate between components that manage state/logic (smart) and components purely for display (dumb). Pass data down via `@Input()` and emit events up via `@Output()`.
+* **Strongly Typed Inputs/Outputs:** Define clear types for `@Input()` and `@Output()` properties. Use `signal` inputs where appropriate (Angular v17.1+).
+* **Lifecycle Hooks:** Implement lifecycle hooks (`OnInit`, `OnDestroy`, etc.) when necessary, ensuring proper cleanup (e.g., unsubscribing observables if not using `async` pipe or `takeUntilDestroyed`).
+* **Templates:**
+    * Keep template logic minimal. Complex logic should reside in the component class.
+    * Use `*ngFor` with `trackBy` for lists to improve rendering performance.
+    * Use the `async` pipe (`| async`) to handle observables/promises directly in the template, minimizing manual subscription management.
+    * Avoid string concatenation for dynamic HTML. Use safe binding mechanisms like `[innerHTML]` with proper sanitization if absolutely necessary.
+    * Use `ng-container` for structural directives (`*ngIf`, `*ngFor`) when you don't need an extra HTML element.
 
-### 1.3 Definitions, Acronyms, and Abbreviations
-* **API:** Application Programming Interface (`Break.Api`)
-* **UI:** User Interface (The Angular Application)
-* **PRD:** Project Requirement Document
-* **POS:** Point of Sale
-* **CRUD:** Create, Read, Update, Delete
-* **Product/Item:** Refers to goods sold by the retail store. The backend API uses "Item".
-* **JWT:** JSON Web Token
+### 2. Services & Dependency Injection
 
-## 2. User Roles and Characteristics
+* **Single Responsibility Principle (SRP):** Services should have a clear, single purpose (e.g., data fetching, authentication, logging).
+* **Injectable Services:** Provide services using `@Injectable({ providedIn: 'root' })` for tree-shakable, singleton services by default. Consider providing in specific component/module scopes if needed.
+* **Use `HttpClient`:** For HTTP requests, use the `HttpClient` module. Define clear interface types for request/response data.
+* **Centralize Logic:** Move business logic, data access, and state management logic out of components and into services.
 
-* **Cashier:** Primarily uses the Sales/POS module. May have limited access to view products.
-* **Stock Manager:** Manages products and inventory levels. Requires access to Product Management features.
-* **Administrator:** Full access to all features, including user registration (if implemented via UI) and potentially system settings.
+### 3. State Management
 
-## 3. Functional Requirements
+* **Signals:** For local component state or simple shared state (via services), prefer Angular Signals (`signal`, `computed`, `effect`).
+* **NgRx (or alternatives like NGXS, Akita):** For complex, global application state:
+    * If using NgRx, consider `SignalStore` or `SignalState` for a more modern, signal-based approach.
+    * Follow standard patterns (Actions, Reducers/Methods, Selectors/Computed, Effects/Methods for side-effects).
+    * Keep state immutable.
 
-This section details the features the application must provide, largely based on the capabilities exposed by the `Break.Api`.
+### 4. Forms
 
-### 3.1 Authentication & Authorization (Based on `/api/auth/...`)
-* **FR-AUTH-01:** The system **shall** provide a login interface where users can enter their username and password.
-* **FR-AUTH-02:** Upon successful login (`POST /api/auth/login`), the system **shall** grant the user access based on their role and store an authentication token (e.g., JWT) for subsequent API calls.
-* **FR-AUTH-03:** The system **shall** restrict access to features based on the logged-in user's role (Requires frontend route guards and potentially backend authorization checks).
-* **FR-AUTH-04:** The system **shall** provide a logout mechanism that clears the user's session/token.
-* **FR-AUTH-05:** (Optional - Requires Admin Role) The system **shall** allow an Administrator to register new users (`POST /api/auth/register`) by providing a username, email, password, and roles.
+* **Reactive Forms:** Prefer Reactive Forms over Template-Driven Forms for non-trivial forms due to better testability, scalability, and explicit control.
+* **Typed Forms:** Always use Strictly Typed Reactive Forms (introduced in Angular v14). Define interfaces for form structures. Use `FormBuilder`, `FormGroup`, `FormControl<T>`, `FormArray`.
+* **Validation:** Implement validation logic within the component class using built-in or custom validators. Provide clear user feedback for validation errors.
 
-### 3.2 Product (Item) Management (Based on `/api/item/...`)
-* **FR-PROD-01:** The system **shall** display a list of all products (`GET /api/item`).
-* **FR-PROD-02:** The product list view **should** allow users to search, filter (e.g., by category), and sort products based on available fields. (Note: API spec doesn't explicitly define query parameters for this; frontend implementation may be needed).
-* **FR-PROD-03:** The system **shall** allow authorized users (Stock Manager, Admin) to add a new product (`POST /api/item`) by providing required details (Product Code, Barcode, Name, Description, Category) and optional details (Unit Price, Reorder Qty, Initial Stock Levels - min/max/current). See `CreateItemRequest` schema.
-* **FR-PROD-04:** The system **shall** display the detailed information for a specific product (`GET /api/item/{id}`), including its current inventory levels (`quantityInStock`, `minimumStockLevel`, etc.).
-* **FR-PROD-05:** The system **shall** allow authorized users to update an existing product's details (`PUT /api/item/{id}`), including its inventory levels (`quantityInStock`). See `UpdateItemRequest` schema.
-* **FR-PROD-06:** The system **shall** allow authorized users to delete a product (`DELETE /api/item/{id}`). (Consider soft delete vs. hard delete implications).
-* **FR-PROD-07:** The system **should** provide clear validation feedback for product creation/update forms based on API requirements (e.g., required fields).
+### 5. Routing
 
-### 3.3 Inventory Management (Derived from Product Management)
-* **FR-INV-01:** The system **shall** display the current `quantityInStock`, `minimumStockLevel`, and `maximumStockLevel` when viewing a product's details (see FR-PROD-04).
-* **FR-INV-02:** The system **shall** allow authorized users to update the `quantityInStock` for a product via the product update feature (see FR-PROD-05). This serves as the primary mechanism for stock adjustments based on the provided API.
-* **FR-INV-03:** (Optional - Frontend Logic) The system **should** visually indicate products whose `quantityInStock` is at or below their `minimumStockLevel` in the product list or a dedicated low-stock view.
+* **Lazy Loading:** Implement lazy loading for feature modules/routes using `loadChildren` (for NgModules) or `loadComponent` (for standalone components/routing configurations) to improve initial load times.
+* **Route Guards:** Use route guards (`CanActivate`, `CanDeactivate`, `resolve`) for protecting routes and pre-fetching data. Generate guards as functions (preferred modern approach).
+* **Standalone Routing APIs:** Use standalone routing APIs (`provideRouter`, functional guards/resolvers) for new applications or when migrating.
 
-### 3.4 Sales / Point of Sale (POS) (Based on `/api/sale/...`)
-* **FR-SALE-01:** The system **shall** provide an interface for creating a new sales transaction (`POST /api/sale`).
-* **FR-SALE-02:** Users **shall** be able to add products (items) to the sale, specifying the quantity for each (`SaleItemRequest` within `CreateSaleRequest`). Item addition should be possible via search or barcode input.
-* **FR-SALE-03:** The system **shall** calculate and display the running total for the current sale based on items added and their unit prices. (Note: Tax/discount calculation logic might need frontend implementation if not handled by the API during sale creation).
-* **FR-SALE-04:** The system **shall** allow users to apply a coupon code to the sale (`couponCode` in `CreateSaleRequest`).
-* **FR-SALE-05:** Upon completion (e.g., payment received offline), the user **shall** be able to confirm the sale (`POST /api/sale/{id}/confirm`). (Note: The API implies a sale is created first, then confirmed).
-* **FR-SALE-06:** The system **shall** allow users to cancel an existing sale (`POST /api/sale/{id}/cancel`). (Clarify if only pending sales or also confirmed sales can be cancelled).
-* **FR-SALE-07:** The system **shall** display a list of all past sales transactions (`GET /api/sale`). The list should be sortable (e.g., by date) and potentially filterable.
-* **FR-SALE-08:** The system **shall** allow users to view the details of a specific past sale (`GET /api/sale/{id}`), including the items sold, quantities, and total amount.
-* **FR-SALE-09:** (Optional - Frontend) The system **should** provide an option to display/print a receipt for a confirmed sale.
+### 6. Modules (Less emphasis with Standalone APIs)
 
-## 4. Non-Functional Requirements (Examples)
+* **AppModule/Bootstrap:** Bootstrap the application using a standalone component (`bootstrapApplication(AppComponent, {providers: [...]})`).
+* **Feature Modules (If used):** If still using NgModules, group related components, services, and pipes into feature modules. Keep them focused.
+* **Shared Modules (If used):** Create shared modules for commonly used components, directives, and pipes across different feature modules, but prefer importing standalone components directly where needed.
 
-* **NFR-PERF-01:** The UI should load key views (product list, sales POS) within 3 seconds on a standard broadband connection.
-* **NFR-USE-01:** The application must be responsive and usable on both desktop and tablet screen sizes.
-* **NFR-SEC-01:** All communication with the `Break.Api` must use HTTPS.
-* **NFR-SEC-02:** Authentication tokens must be handled securely on the client-side.
-* **NFR-MAINT-01:** Code should adhere to the Angular Style Guide and include comments for complex logic.
+### 7. Coding Style & TypeScript
 
-## 5. API Dependencies
+* **Avoid `any`:** Use specific types, `unknown`, or generics instead.
+* **Use `const`:** Prefer `const` over `let` when variables are not reassigned.
+* **Immutability:** Treat objects and arrays as immutable, especially when dealing with state management or `@Input` properties with `OnPush`. Use spread syntax (`...`) or libraries like Immer.
+* **ESLint:** Adhere to configured ESLint rules.
+* **Naming Conventions:** Follow Angular naming conventions (e.g., `my-component.component.ts`, `MyComponent`, `my-service.service.ts`, `MyService`). Lower camelCase for properties/methods.
+* **Comments:** Add comments where necessary to explain complex logic or intent (JSDoc style preferred).
 
-* The functionality of this Angular application is dependent on the `Break.Api` as defined in the provided OpenAPI v3.0.4 specification.
-* The frontend application must interact with the API endpoints listed in the specification to perform its functions.
-* Frontend data models (TypeScript interfaces/classes) must align with the API's request/response schemas (e.g., `CreateItemRequest`, `UpdateItemRequest`, `CreateSaleRequest`, etc.).
+### 8. Error Handling
 
-## 6. Assumptions
+* Implement robust error handling for HTTP requests (e.g., using `catchError` in RxJS pipes) and other asynchronous operations.
+* Provide user-friendly error messages.
 
-* The `Break.Api` handles all core business logic (e.g., price calculation, inventory deduction upon sale confirmation).
-* The API provides meaningful error messages that can be displayed to the user.
-* User roles and permissions are correctly managed by the backend API based on the authenticated user.
-* Updating a product's `quantityInStock` via `PUT /api/item/{id}` is the intended method for all inventory adjustments (receiving stock, corrections, etc.). No separate "Inventory Adjustment" endpoint exists in the provided spec.
-* The API endpoints for retrieving lists (`GET /api/item`, `GET /api/sale`) return sufficient data for display and basic filtering/sorting on the frontend. Pagination support from the API is assumed or will need frontend handling.
+### 9. Security
+
+* **Sanitization:** Trust Angular's default sanitization. Be cautious with methods like `bypassSecurityTrustHtml`. Understand the risks.
+* **Avoid Template Injection:** Never concatenate user input directly into template strings.
+* **HTTP Security:** Use `HttpClient` which has built-in XSRF/CSRF protection support (requires server-side setup). Ensure HTTPS is used.
+* **Dependencies:** Keep Angular and third-party libraries up-to-date.
+
+### 10. Testing
+
+* Generate unit tests (`.spec.ts`) for components, services, and pipes using TestBed and potentially libraries like `jest` or `spectator`.
+* Focus on testing component inputs, outputs, public methods, and template interactions.
+* Mock dependencies effectively.
+
+---
+
+**Assistant Note:** When generating code, explain *why* a particular pattern or feature (like Standalone Components or Signals) is being used if it seems relevant to the context. Prioritize the instructions above when suggesting code snippets or refactoring existing code.

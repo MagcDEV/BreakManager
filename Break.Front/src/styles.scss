@@ -1,0 +1,28 @@
+/* You can add global styles to this file, and also import other style files */
+// filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\styles.scss
+/* You can add global styles to this file, and also import other style files */
+
+/* Define global CSS variables here */
+:root {
+  --primary-color: #007bff;       // Blue (links, buttons, highlights)
+  --primary-color-dark: #0056b3;  // Darker blue (hover states)
+  --secondary-color: #6c757d;     // Grey (disabled elements, secondary text)
+  --success-color: #28a745;       // Green (success messages, register button)
+  --success-color-dark: #218838; // Darker green
+  --danger-color: #dc3545;        // Red (errors, warnings)
+  --danger-color-light: #f8d7da; // Light red (error background)
+  --warning-color: #ffc107;       // Yellow
+  --info-color: #17a2b8;         // Teal
+  --light-bg: #f8f9fa;           // Very light grey (footers, backgrounds)
+  --light-border: #e0e0e0;       // Light grey for borders
+  --header-bg: #ffffff;
+  --text-color: #333;
+  --text-muted: #6c757d;
+  --body-bg: #f4f7f9;            // Main background for the content area
+}
+
+/* Add other global styles below if needed, e.g., body defaults */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Consistent base font */
+}
