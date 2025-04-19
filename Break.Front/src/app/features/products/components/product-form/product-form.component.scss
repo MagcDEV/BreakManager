@@ -1,0 +1,171 @@
+@use 'sass:color'; // Import the color module
+
+// Inherit variables or redefine if needed
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$success-color: #28a745;
+$light-gray: #f8f9fa;
+$medium-gray: #dee2e6;
+$dark-gray: #343a40;
+$border-radius: 0.25rem;
+$spacing-unit: 1rem;
+
+:host {
+  display: block;
+  padding: $spacing-unit * 1.5;
+}
+
+.product-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: $spacing-unit * 2;
+  border: 1px solid $medium-gray;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+  color: $dark-gray;
+  margin-top: 0;
+  margin-bottom: $spacing-unit * 1.5;
+  border-bottom: 1px solid $medium-gray;
+  padding-bottom: $spacing-unit * 0.75;
+}
+
+.loading,
+.error-message {
+  padding: $spacing-unit;
+  margin-bottom: $spacing-unit * 1.5;
+  border-radius: $border-radius;
+  text-align: center;
+}
+
+.loading {
+  background-color: color.adjust($warning-color, $lightness: 30%); // Updated
+  color: color.adjust($warning-color, $lightness: -20%); // Updated
+}
+
+.error-message {
+  background-color: color.adjust($danger-color, $lightness: 35%); // Updated
+  color: $danger-color;
+  font-weight: 500;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2; // Space between fieldsets/actions
+}
+
+fieldset {
+  border: 1px solid $medium-gray;
+  padding: $spacing-unit * 1.5;
+  border-radius: $border-radius;
+  margin: 0; // Remove default fieldset margin
+
+  legend {
+    padding: 0 $spacing-unit * 0.5;
+    font-weight: 600;
+    color: $secondary-color;
+  }
+}
+
+.form-field {
+  margin-bottom: $spacing-unit * 1.2; // Space between fields
+
+  label {
+    display: block;
+    margin-bottom: $spacing-unit * 0.4;
+    font-weight: 500;
+    color: $dark-gray;
+    font-size: 0.9rem;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    width: 100%;
+    padding: $spacing-unit * 0.6 $spacing-unit;
+    border: 1px solid $medium-gray;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    box-sizing: border-box; // Include padding and border in element's total width/height
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+      outline: none;
+    }
+
+    // Style for invalid fields
+    &[aria-invalid="true"] {
+      border-color: $danger-color;
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($danger-color, 0.25);
+      }
+    }
+  }
+
+  textarea {
+    min-height: 80px; // Give textarea some default height
+    resize: vertical; // Allow vertical resizing
+  }
+}
+
+.validation-errors {
+  margin-top: $spacing-unit * 0.3;
+  small {
+    color: $danger-color;
+    font-size: 0.8rem;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-unit;
+  margin-top: $spacing-unit; // Add some space above actions
+
+  .submit-button,
+  .cancel-button {
+    padding: $spacing-unit * 0.75 $spacing-unit * 1.5;
+    border: 1px solid transparent;
+    border-radius: $border-radius;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .submit-button {
+    background-color: $success-color;
+    border-color: $success-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($success-color, $lightness: -10%); // Updated
+      border-color: color.adjust($success-color, $lightness: -10%); // Updated
+    }
+
+    &:disabled {
+      background-color: color.adjust($success-color, $lightness: 20%); // Updated
+      border-color: color.adjust($success-color, $lightness: 20%); // Updated
+      cursor: not-allowed;
+    }
+  }
+
+  .cancel-button {
+    background-color: $light-gray;
+    border-color: $medium-gray;
+    color: $dark-gray;
+
+    &:hover {
+      background-color: color.adjust($light-gray, $lightness: -5%); // Updated
+    }
+  }
+}

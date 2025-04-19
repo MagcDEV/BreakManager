@@ -14,12 +14,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/sales/components/pos/pos.component').then(m => m.PosComponent),
     // canActivate: [authGuard] // Add guard later
   },
-/*   {
+  {
     path: 'products',
     // Example assuming products feature has its own routes file
     loadChildren: () => import('./features/products/products.routes').then(m => m.PRODUCT_ROUTES),
     // canActivate: [authGuard] // Add guard later
-  }, */
+  },
 /*   {
     path: 'sales',
     // Example assuming sales feature has its own routes file

@@ -53,7 +53,8 @@ export class AuthService {
         this.isAuthenticated.set(true);
         // Navigate after successful login (only in browser)
         if (isPlatformBrowser(this.platformId)) {
-            this.router.navigate(['/dashboard']); // Or desired post-login route
+            console.log('Login successful, navigating to dashboard');
+            this.router.navigate(['/products']); // Or desired post-login route
         }
       }),
       catchError((error: HttpErrorResponse) => {

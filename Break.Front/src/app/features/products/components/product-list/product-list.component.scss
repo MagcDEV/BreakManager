@@ -1,0 +1,93 @@
+@use 'sass:color'; // Import the color module
+
+// Variables (Consider moving to a global scope later)
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$light-gray: #f8f9fa;
+$medium-gray: #dee2e6;
+$dark-gray: #343a40;
+$border-radius: 0.25rem;
+$spacing-unit: 1rem;
+
+:host {
+  display: block; // Ensures the component takes up block space
+  padding: $spacing-unit * 1.5;
+}
+
+.product-list-container {
+  max-width: 1200px; // Limit width for better readability on large screens
+  margin: 0 auto; // Center the container
+}
+
+h2 {
+  color: $dark-gray;
+  margin-bottom: $spacing-unit * 1.5;
+  border-bottom: 1px solid $medium-gray;
+  padding-bottom: $spacing-unit * 0.5;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-unit * 1.5;
+  gap: $spacing-unit;
+  flex-wrap: wrap; // Allow controls to wrap on smaller screens
+
+  input[type="search"] {
+    padding: $spacing-unit * 0.5 $spacing-unit;
+    border: 1px solid $medium-gray;
+    border-radius: $border-radius;
+    min-width: 250px; // Give search some space
+    flex-grow: 1; // Allow search to take available space
+  }
+
+  .add-button {
+    padding: $spacing-unit * 0.6 $spacing-unit * 1.2;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    text-decoration: none; // Remove underline from potential routerLink
+    font-weight: 500;
+    white-space: nowrap; // Prevent button text wrapping
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%); // Updated
+    }
+  }
+}
+
+.loading,
+.error-message {
+  padding: $spacing-unit;
+  margin-bottom: $spacing-unit;
+  border-radius: $border-radius;
+  text-align: center;
+}
+
+.loading {
+  background-color: color.adjust($warning-color, $lightness: 30%); // Updated
+  color: color.adjust($warning-color, $lightness: -20%); // Updated
+}
+
+.error-message {
+  background-color: color.adjust($danger-color, $lightness: 35%); // Updated
+  color: $danger-color;
+  font-weight: 500;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // Responsive grid
+  gap: $spacing-unit * 1.5;
+}
+
+p { // Style for "No products found"
+  text-align: center;
+  color: $secondary-color;
+  margin-top: $spacing-unit * 2;
+}

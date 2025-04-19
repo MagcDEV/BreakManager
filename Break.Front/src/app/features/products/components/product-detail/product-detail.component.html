@@ -1,0 +1,47 @@
+<div class="product-detail-container">
+  <button (click)="goBack()" class="back-button">&larr; Back to List</button>
+
+  @if (isLoading()) {
+    <div class="loading">Loading product details...</div>
+  }
+
+  @if (errorMessage(); as msg) {
+    <div class="error-message">{{ msg }}</div>
+  }
+
+  @if (product$ | async; as product) {
+    @if (product) {
+      <h2>{{ product.productName }}</h2>
+      <div class="details-grid">
+        <div><strong>Product Code:</strong> {{ product.productCode }}</div>
+        <div><strong>Barcode:</strong> {{ product.barcode }}</div>
+        <div><strong>Category:</strong> {{ product.productCategory }}</div>
+        <div><strong>Unit Price:</strong> {{ product.unitPrice | currency:'USD':'symbol' }}</div>
+        <div><strong>Description:</strong> {{ product.productDescription }}</div>
+
+        <!-- FR-INV-01: Inventory Details -->
+        <div class="inventory-section">
+          <h3>Inventory</h3>
+          <div><strong>Quantity In Stock:</strong> {{ product.quantityInStock }}</div>
+          <div><strong>Minimum Stock Level:</strong> {{ product.minimumStockLevel }}</div>
+          <div><strong>Maximum Stock Level:</strong> {{ product.maximumStockLevel }}</div>
+          <div><strong>Reorder Quantity:</strong> {{ product.reorderQuantity }}</div>
+        </div>
+
+        <div class="metadata-section">
+           <h3>Metadata</h3>
+           <div><strong>Date Added:</strong> {{ product.dateAdded | date:'medium' }}</div>
+           <div><strong>Last Updated:</strong> {{ product.lastUpdated | date:'medium' }}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a [routerLink]="['/products', product.itemId, 'edit']" class="action-button edit-button">Edit Product</a>
+        <button (click)="deleteProduct(product)" class="action-button delete-button">Delete Product</button>
+      </div>
+    }
+  } @else if (!isLoading() && !errorMessage()) {
+    <!-- This case might be hit if the observable completes with null/empty -->
+    <p>Product details could not be loaded.</p>
+  }
+</div>

@@ -1,0 +1,160 @@
+<div class="product-form-container">
+  <h2>{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h2>
+
+  @if (isLoading()) {
+    <div class="loading">Loading...</div>
+  }
+
+  @if (errorMessage(); as msg) {
+    <div class="error-message">{{ msg }}</div>
+  }
+
+  <!-- FR-PROD-07: Validation feedback -->
+  @if (productForm.invalid && productForm.touched) {
+     <div class="error-message">Please correct the highlighted errors below.</div>
+  }
+
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- General Information -->
+    <fieldset>
+      <legend>General Information</legend>
+      <div class="form-field">
+        <label for="productName">Product Name</label>
+        <input id="productName" type="text" formControlName="productName" required
+               [attr.aria-invalid]="productName.invalid && (productName.dirty || productName.touched)">
+        @if (productName.invalid && (productName.dirty || productName.touched)) {
+          <div class="validation-errors">
+            @if (productName.errors?.['required']) { <small>Product Name is required.</small> }
+            @if (productName.errors?.['maxlength']) { <small>Name cannot exceed 100 characters.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="productCode">Product Code</label>
+        <input id="productCode" type="text" formControlName="productCode" required
+               [attr.aria-invalid]="productCode.invalid && (productCode.dirty || productCode.touched)">
+        @if (productCode.invalid && (productCode.dirty || productCode.touched)) {
+          <div class="validation-errors">
+            @if (productCode.errors?.['required']) { <small>Product Code is required.</small> }
+            @if (productCode.errors?.['maxlength']) { <small>Code cannot exceed 100 characters.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="barcode">Barcode</label>
+        <input id="barcode" type="text" formControlName="barcode" required
+               [attr.aria-invalid]="barcode.invalid && (barcode.dirty || barcode.touched)">
+         @if (barcode.invalid && (barcode.dirty || barcode.touched)) {
+          <div class="validation-errors">
+            @if (barcode.errors?.['required']) { <small>Barcode is required.</small> }
+            @if (barcode.errors?.['maxlength']) { <small>Barcode cannot exceed 100 characters.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="productCategory">Category</label>
+        <input id="productCategory" type="text" formControlName="productCategory" required
+               [attr.aria-invalid]="productCategory.invalid && (productCategory.dirty || productCategory.touched)">
+        @if (productCategory.invalid && (productCategory.dirty || productCategory.touched)) {
+          <div class="validation-errors">
+            @if (productCategory.errors?.['required']) { <small>Category is required.</small> }
+            @if (productCategory.errors?.['maxlength']) { <small>Category cannot exceed 100 characters.</small> }
+          </div>
+        }
+      </div>
+
+       <div class="form-field">
+        <label for="unitPrice">Unit Price</label>
+        <input id="unitPrice" type="number" formControlName="unitPrice" required min="0" step="0.01"
+               [attr.aria-invalid]="unitPrice.invalid && (unitPrice.dirty || unitPrice.touched)">
+        @if (unitPrice.invalid && (unitPrice.dirty || unitPrice.touched)) {
+          <div class="validation-errors">
+            @if (unitPrice.errors?.['required']) { <small>Unit Price is required.</small> }
+            @if (unitPrice.errors?.['min']) { <small>Price cannot be negative.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="productDescription">Description</label>
+        <textarea id="productDescription" formControlName="productDescription" rows="3"
+                  [attr.aria-invalid]="productDescription.invalid && (productDescription.dirty || productDescription.touched)"></textarea>
+         @if (productDescription.invalid && (productDescription.dirty || productDescription.touched)) {
+          <div class="validation-errors">
+            @if (productDescription.errors?.['maxlength']) { <small>Description cannot exceed 2000 characters.</small> }
+          </div>
+        }
+      </div>
+    </fieldset>
+
+    <!-- Inventory Information -->
+    <fieldset>
+      <legend>Inventory</legend>
+      <div class="form-field">
+        <label for="quantityInStock">Quantity In Stock</label>
+        <input id="quantityInStock" type="number" formControlName="quantityInStock" required min="0"
+               [attr.aria-invalid]="quantityInStock.invalid && (quantityInStock.dirty || quantityInStock.touched)">
+        @if (quantityInStock.invalid && (quantityInStock.dirty || quantityInStock.touched)) {
+          <div class="validation-errors">
+            @if (quantityInStock.errors?.['required']) { <small>Quantity is required.</small> }
+            @if (quantityInStock.errors?.['min']) { <small>Quantity cannot be negative.</small> }
+            @if (quantityInStock.errors?.['pattern']) { <small>Quantity must be a whole number.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="minimumStockLevel">Minimum Stock Level</label>
+        <input id="minimumStockLevel" type="number" formControlName="minimumStockLevel" required min="0"
+               [attr.aria-invalid]="minimumStockLevel.invalid && (minimumStockLevel.dirty || minimumStockLevel.touched)">
+         @if (minimumStockLevel.invalid && (minimumStockLevel.dirty || minimumStockLevel.touched)) {
+          <div class="validation-errors">
+            @if (minimumStockLevel.errors?.['required']) { <small>Min Stock is required.</small> }
+            @if (minimumStockLevel.errors?.['min']) { <small>Min Stock cannot be negative.</small> }
+            @if (minimumStockLevel.errors?.['pattern']) { <small>Min Stock must be a whole number.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="maximumStockLevel">Maximum Stock Level</label>
+        <input id="maximumStockLevel" type="number" formControlName="maximumStockLevel" required min="0"
+               [attr.aria-invalid]="maximumStockLevel.invalid && (maximumStockLevel.dirty || maximumStockLevel.touched)">
+         @if (maximumStockLevel.invalid && (maximumStockLevel.dirty || maximumStockLevel.touched)) {
+          <div class="validation-errors">
+            @if (maximumStockLevel.errors?.['required']) { <small>Max Stock is required.</small> }
+            @if (maximumStockLevel.errors?.['min']) { <small>Max Stock cannot be negative.</small> }
+            @if (maximumStockLevel.errors?.['pattern']) { <small>Max Stock must be a whole number.</small> }
+          </div>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="reorderQuantity">Reorder Quantity</label>
+        <input id="reorderQuantity" type="number" formControlName="reorderQuantity" required min="0"
+               [attr.aria-invalid]="reorderQuantity.invalid && (reorderQuantity.dirty || reorderQuantity.touched)">
+         @if (reorderQuantity.invalid && (reorderQuantity.dirty || reorderQuantity.touched)) {
+          <div class="validation-errors">
+            @if (reorderQuantity.errors?.['required']) { <small>Reorder Qty is required.</small> }
+            @if (reorderQuantity.errors?.['min']) { <small>Reorder Qty cannot be negative.</small> }
+            @if (reorderQuantity.errors?.['pattern']) { <small>Reorder Qty must be a whole number.</small> }
+          </div>
+        }
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="submit-button" [disabled]="productForm.invalid || isLoading()">
+        @if (isLoading()) {
+          <span>Saving...</span>
+        } @else {
+          <span>{{ isEditMode() ? 'Update Product' : 'Create Product' }}</span>
+        }
+      </button>
+      <a routerLink="/products" class="cancel-button">Cancel</a>
+    </div>
+  </form>
+</div>

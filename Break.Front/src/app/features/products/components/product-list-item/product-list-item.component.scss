@@ -1,0 +1,119 @@
+@use 'sass:color'; // Import the color module
+
+// Inherit variables or redefine if needed
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$light-gray: #f8f9fa;
+$medium-gray: #dee2e6;
+$dark-gray: #343a40;
+$border-radius: 0.25rem;
+$spacing-unit: 1rem;
+
+:host {
+  display: block; // Ensure component takes space in the grid layout (e.g., product-list)
+}
+
+.product-card {
+  border: 1px solid $medium-gray;
+  border-radius: $border-radius;
+  background-color: #fff; // White background for the card
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // Subtle shadow for depth
+  transition: box-shadow 0.2s ease-in-out; // Smooth transition on hover
+  display: flex;
+  flex-direction: column; // Stack info and actions vertically
+  height: 100%; // Ensure cards in a grid row have equal height
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Slightly larger shadow on hover
+  }
+
+  // Style for low stock items (FR-INV-03)
+  &.low-stock {
+    border-left: 5px solid $warning-color; // Add a visual indicator on the left
+  }
+}
+
+.product-info {
+  padding: $spacing-unit; // Padding inside the info section
+  flex-grow: 1; // Allow this section to take up available vertical space
+
+  h3 {
+    margin-top: 0; // Remove default top margin
+    margin-bottom: $spacing-unit * 0.5;
+    color: $dark-gray; // Darker color for the main title
+    font-size: 1.1rem; // Slightly larger font for the name
+  }
+
+  p {
+    margin: $spacing-unit * 0.25 0; // Small vertical margin between paragraphs
+    font-size: 0.9rem; // Standard text size
+    color: $secondary-color; // Gray color for less important info
+    line-height: 1.4; // Improve readability
+
+    &.product-price {
+      font-weight: bold; // Make the price stand out
+      color: color.adjust($primary-color, $lightness: -10%); // Updated
+    }
+
+    &.product-stock {
+      font-weight: 500; // Slightly bolder stock info
+    }
+  }
+
+  .low-stock-indicator {
+    color: color.adjust($warning-color, $lightness: -15%); // Updated
+    font-weight: bold; // Make it stand out
+    margin-left: $spacing-unit * 0.5; // Space it from the stock number
+  }
+}
+
+.product-actions {
+  padding: $spacing-unit; // Padding inside the actions section
+  border-top: 1px solid $light-gray; // Separator line
+  display: flex; // Arrange buttons in a row
+  gap: $spacing-unit * 0.5; // Space between buttons
+  justify-content: flex-end; // Align buttons to the right
+
+  .action-button {
+    padding: $spacing-unit * 0.4 $spacing-unit * 0.8; // Button padding
+    border: 1px solid transparent; // Start with transparent border
+    border-radius: $border-radius; // Consistent border radius
+    cursor: pointer;
+    text-decoration: none; // Remove underline from links
+    font-size: 0.85rem; // Smaller font size for action buttons
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; // Smooth transitions
+
+    // Specific button styles
+    &.view-button {
+      background-color: $light-gray;
+      border-color: $medium-gray;
+      color: $dark-gray;
+      &:hover {
+        background-color: color.adjust($light-gray, $lightness: -5%); // Updated
+      }
+    }
+
+    &.edit-button {
+      background-color: color.adjust($primary-color, $lightness: 45%); // Updated
+      border-color: color.adjust($primary-color, $lightness: 30%); // Updated
+      color: $primary-color; // Primary color text
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: 40%); // Updated
+      }
+    }
+
+    &.delete-button {
+      background-color: color.adjust($danger-color, $lightness: 40%); // Updated
+      border-color: color.adjust($danger-color, $lightness: 30%); // Updated
+      color: $danger-color; // Danger color text
+      &:hover {
+        // More prominent hover for delete action
+        background-color: $danger-color;
+        border-color: color.adjust($danger-color, $lightness: -5%); // Updated
+        color: white; // White text on hover
+      }
+    }
+  }
+}

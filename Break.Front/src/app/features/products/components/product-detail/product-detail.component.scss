@@ -1,0 +1,142 @@
+@use 'sass:color'; // Import the color module
+
+// Inherit variables or redefine if needed
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$light-gray: #f8f9fa;
+$medium-gray: #dee2e6;
+$dark-gray: #343a40;
+$border-radius: 0.25rem;
+$spacing-unit: 1rem;
+
+:host {
+  display: block;
+  padding: $spacing-unit * 1.5;
+}
+
+.product-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: $spacing-unit * 2;
+  border: 1px solid $medium-gray;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.back-button {
+  margin-bottom: $spacing-unit * 1.5;
+  background: none;
+  border: none;
+  color: $primary-color;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: $spacing-unit * 0.25 0; // Add padding for easier clicking
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+h2 {
+  color: $dark-gray;
+  margin-top: 0;
+  margin-bottom: $spacing-unit * 1.5;
+  border-bottom: 1px solid $medium-gray;
+  padding-bottom: $spacing-unit * 0.75;
+}
+
+.loading,
+.error-message {
+  padding: $spacing-unit;
+  margin-bottom: $spacing-unit;
+  border-radius: $border-radius;
+  text-align: center;
+}
+
+.loading {
+  background-color: color.adjust($warning-color, $lightness: 30%); // Updated
+  color: color.adjust($warning-color, $lightness: -20%); // Updated
+}
+
+.error-message {
+  background-color: color.adjust($danger-color, $lightness: 35%); // Updated
+  color: $danger-color;
+  font-weight: 500;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); // Responsive columns
+  gap: $spacing-unit * 1.5;
+  margin-bottom: $spacing-unit * 2;
+
+  div { // Style individual detail items
+    line-height: 1.6;
+    strong {
+      color: $dark-gray;
+    }
+  }
+}
+
+.inventory-section,
+.metadata-section {
+  margin-top: $spacing-unit * 1.5;
+  padding-top: $spacing-unit * 1.5;
+  border-top: 1px dashed $medium-gray; // Visually separate sections
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: $spacing-unit;
+    color: $secondary-color;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.actions {
+  margin-top: $spacing-unit * 2;
+  padding-top: $spacing-unit * 1.5;
+  border-top: 1px solid $medium-gray;
+  display: flex;
+  gap: $spacing-unit;
+  justify-content: flex-end;
+
+  .action-button {
+    padding: $spacing-unit * 0.6 $spacing-unit * 1.2;
+    border: 1px solid transparent;
+    border-radius: $border-radius;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &.edit-button {
+      background-color: $primary-color;
+      border-color: $primary-color;
+      color: white;
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: -10%); // Updated
+        border-color: color.adjust($primary-color, $lightness: -10%); // Updated
+      }
+    }
+
+    &.delete-button {
+      background-color: $danger-color;
+      border-color: $danger-color;
+      color: white;
+      &:hover {
+        background-color: color.adjust($danger-color, $lightness: -10%); // Updated
+        border-color: color.adjust($danger-color, $lightness: -10%); // Updated
+      }
+    }
+  }
+}
+
+p { // Style for "Product details could not be loaded."
+  text-align: center;
+  color: $secondary-color;
+  margin-top: $spacing-unit * 2;
+}

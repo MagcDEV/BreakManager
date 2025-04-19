@@ -1,0 +1,20 @@
+<div class="product-card" [ngClass]="{ 'low-stock': isLowStock }">
+  <div class="product-info">
+    <h3>{{ item.productName }}</h3>
+    <p class="product-code">Code: {{ item.productCode }}</p>
+    <p class="product-category">Category: {{ item.productCategory }}</p>
+    <p class="product-price">{{ item.unitPrice | currency:'USD':'symbol' }}</p> <!-- Adjust currency code as needed -->
+    <p class="product-stock">
+      Stock: {{ item.quantityInStock }}
+      @if (isLowStock) {
+        <span class="low-stock-indicator">(Low Stock!)</span>
+      }
+    </p>
+  </div>
+  <div class="product-actions">
+    <a [routerLink]="['/products', item.itemId]" class="action-button view-button">View Details</a>
+    <a [routerLink]="['/products', item.itemId, 'edit']" class="action-button edit-button">Edit</a>
+    <!-- FR-PROD-06: Delete button triggers event emitter -->
+    <button (click)="onDeleteClick()" class="action-button delete-button">Delete</button>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http'; // Import provideHttpClient and interceptor function
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http'; // Import provideHttpClient and interceptor function
 
 import { routes } from './app.routes';
 // Import your interceptors when created
@@ -14,6 +14,7 @@ export const appConfig: ApplicationConfig = {
 
     // Set up HttpClient for making API requests
     provideHttpClient(
+      withFetch()
       // Register interceptors here once created
       // withInterceptors([authInterceptor, errorInterceptor])
     ),

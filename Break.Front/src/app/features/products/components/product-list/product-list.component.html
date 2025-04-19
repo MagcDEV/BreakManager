@@ -1,0 +1,40 @@
+<div class="product-list-container">
+  <h2>Product Management</h2>
+
+  <div class="controls">
+    <!-- FR-PROD-02: Search/Filter/Sort Controls (Basic Example) -->
+    <input type="search" placeholder="Search products..." #searchInput
+           (input)="onSearchTermChange(searchInput.value)">
+    <!-- Add filter dropdown/buttons -->
+    <!-- Add sort dropdown -->
+    <button routerLink="/products/new" class="add-button">Add New Product</button>
+  </div>
+
+  <!-- Loading Indicator -->
+  @if (isLoading()) {
+    <div class="loading">Loading products...</div> <!-- Use a shared spinner component ideally -->
+  }
+
+  <!-- Error Message -->
+  @if (errorMessage(); as msg) {
+    <div class="error-message">{{ msg }}</div>
+  }
+
+  <!-- Product List -->
+  @if (products$ | async; as products) {
+    @if (products.length > 0) {
+      <div class="product-grid">
+        <!-- Use ng-container if no wrapper element needed per item -->
+        @for (product of products; track trackByProductId) {
+          <app-product-list-item
+            [item]="product"
+            (deleteRequest)="handleDeleteProduct($event)">
+            <!-- Add editRequest output if needed -->
+          </app-product-list-item>
+        }
+      </div>
+    } @else if (!isLoading() && !errorMessage()) {
+      <p>No products found.</p>
+    }
+  }
+</div>
