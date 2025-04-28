@@ -84,6 +84,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // Responsive grid
   gap: $spacing-unit * 1.5;
+  margin-bottom: $spacing-unit * 2; // Add space before pagination
 }
 
 p { // Style for "No products found"
@@ -91,3 +92,43 @@ p { // Style for "No products found"
   color: $secondary-color;
   margin-top: $spacing-unit * 2;
 }
+
+// --- Pagination Styles ---
+.pagination-controls {
+  display: flex;
+  justify-content: center; // Center the pagination items
+  align-items: center;
+  gap: $spacing-unit; // Space between buttons and text
+  margin-top: $spacing-unit * 2; // Space above pagination
+  padding: $spacing-unit 0; // Padding top/bottom
+  border-top: 1px solid $medium-gray; // Separator line
+
+  button {
+    padding: $spacing-unit * 0.5 $spacing-unit;
+    border: 1px solid $medium-gray;
+    background-color: white;
+    color: $primary-color;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease; // Smooth transition
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($primary-color, $alpha: -0.9); // Light primary background on hover
+      border-color: color.adjust($primary-color, $alpha: -0.7);
+    }
+
+    &:disabled {
+      color: $secondary-color;
+      border-color: $medium-gray;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  span {
+    color: $dark-gray;
+    font-size: 0.9em;
+    white-space: nowrap; // Prevent text wrapping
+  }
+}
+// --- End Pagination Styles ---

@@ -27,6 +27,8 @@ public static class AuthEndpoints
                 }
             )
             .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithName("Login");
 
         app.MapPost(
@@ -40,6 +42,7 @@ public static class AuthEndpoints
                 }
             )
             .AllowAnonymous()
+            .Produces(StatusCodes.Status201Created)
             .WithName("Register");
 
         // Add additional auth-related endpoints here

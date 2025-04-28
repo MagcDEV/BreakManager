@@ -1,97 +1,134 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core'; // Import computed
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ProductService } from '../../../../core/services/product.service'; // Adjust the import path as necessary
-import { Item } from '../../../../core/models/item.model'; // Adjust the import path as necessary
-import { ProductListItemComponent } from '../product-list-item/product-list-item.component'; // Import the dumb component
-import { Observable, EMPTY } from 'rxjs';
+import { ProductService, PaginatedResult } from '../../../../core/services/product.service'; // Adjust path, import PaginatedResult
+import { Item } from '../../../../core/models/item.model';
+import { PaginationMetadata } from '../../../../core/models/pagination.model'; // Import PaginationMetadata
+import { ProductListItemComponent } from '../product-list-item/product-list-item.component';
+import { Observable, EMPTY, Subject, switchMap, tap, startWith } from 'rxjs'; // Import Subject, switchMap, tap, startWith
 import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    AsyncPipe, // Use AsyncPipe to handle observables in the template
-    RouterLink, // For navigation links (e.g., Add New)
-    ProductListItemComponent // Import the child component
+    AsyncPipe,
+    RouterLink,
+    ProductListItemComponent
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush // Use OnPush for performance
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);
 
-  // Signal-based state management for loading and errors
+  // --- State Signals ---
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(10); // Default page size
+  readonly paginationMetadata = signal<PaginationMetadata | null>(null);
 
-  // Observable stream for products
-  products$: Observable<Item[]> = EMPTY; // Initialize with EMPTY
+  // --- Signals for triggering data refresh ---
+  private readonly refreshTrigger = new Subject<void>();
 
-  // FR-PROD-02: Placeholder signals for search/filter/sort criteria
-  readonly searchTerm = signal('');
-  readonly filterCategory = signal('');
-  readonly sortOrder = signal('productName'); // Default sort
+  // --- Derived Observable for Products ---
+  // Use switchMap to react to refresh triggers (including page changes)
+  readonly productsResult$: Observable<PaginatedResult<Item>> = this.refreshTrigger.pipe(
+    startWith(undefined), // Trigger initial load
+    tap(() => { // Set loading state when starting fetch
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
+    }),
+    switchMap(() => this.productService.getAllItems(this.currentPage(), this.pageSize()) // Pass current page/size
+      .pipe(
+        tap((result) => { // Update metadata and loading state on success
+          this.paginationMetadata.set(result.metadata);
+          this.isLoading.set(false);
+        }),
+        catchError((err: Error) => { // Handle errors
+          this.errorMessage.set(err.message || 'Failed to load products.');
+          this.paginationMetadata.set(null); // Clear metadata on error
+          this.isLoading.set(false);
+          return EMPTY; // Return empty observable to prevent breaking the stream
+        })
+      )
+    )
+  );
+
+  // Computed signal for easier access in template (optional)
+  readonly hasPreviousPage = computed(() => this.paginationMetadata()?.hasPreviousPage ?? false);
+  readonly hasNextPage = computed(() => this.paginationMetadata()?.hasNextPage ?? false);
 
   ngOnInit(): void {
-    this.loadProducts();
+    // Initial load is handled by startWith in the observable pipeline
+    // this.loadProducts(); // No longer needed here
   }
 
-  loadProducts(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-    // TODO: Pass sort/filter signals to service when API supports it
-    // For now, just fetch all
-    this.products$ = this.productService.getAllItems().pipe(
-      catchError((err: Error) => {
-        this.errorMessage.set(err.message || 'Failed to load products.');
-        this.isLoading.set(false);
-        return EMPTY; // Return an empty observable on error to prevent breaking the async pipe
-      }),
-      // Use tap or finalize eventually to set isLoading(false) on success/completion
-      // For simplicity now, we rely on async pipe handling completion.
-      // Consider adding finalize(() => this.isLoading.set(false)) if needed
-    );
-    // A simple way to turn off loading: subscribe briefly (not ideal for async pipe)
-    // Or use a more complex pattern involving tap/finalize with the async pipe.
-    // For now, we'll assume loading stops when data arrives or error occurs.
-    // A better approach might involve mapping the stream to include loading state.
-    this.products$.subscribe({
-        complete: () => this.isLoading.set(false),
-        error: () => this.isLoading.set(false) // Already handled in catchError, but good practice
-    });
+  // --- Pagination Methods ---
+  goToPreviousPage(): void {
+    if (this.hasPreviousPage()) {
+      this.currentPage.update(page => page - 1);
+      this.triggerRefresh();
+    }
   }
 
+  goToNextPage(): void {
+    if (this.hasNextPage()) {
+      this.currentPage.update(page => page + 1);
+      this.triggerRefresh();
+    }
+  }
+
+  // Method to trigger a data refresh
+  private triggerRefresh(): void {
+    this.refreshTrigger.next();
+  }
+
+  // --- Other Methods ---
   // FR-PROD-02: Methods to update search/filter/sort signals (will trigger reload if implemented)
   onSearchTermChange(term: string): void {
-    this.searchTerm.set(term);
-    // this.loadProducts(); // Reload when API supports search
+    // TODO: Implement search logic (update a search signal and triggerRefresh)
+    console.log('Search:', term);
+    // this.searchTerm.set(term);
+    // this.currentPage.set(1); // Reset to first page on search
+    // this.triggerRefresh();
   }
 
   onFilterChange(category: string): void {
-    this.filterCategory.set(category);
-    // this.loadProducts(); // Reload when API supports filtering
+    // TODO: Implement filter logic
+    console.log('Filter:', category);
+    // this.filterCategory.set(category);
+    // this.currentPage.set(1); // Reset to first page on filter
+    // this.triggerRefresh();
   }
 
   onSortChange(order: string): void {
-    this.sortOrder.set(order);
-    // this.loadProducts(); // Reload when API supports sorting
+    // TODO: Implement sort logic
+    console.log('Sort:', order);
+    // this.sortOrder.set(order);
+    // this.currentPage.set(1); // Reset to first page on sort
+    // this.triggerRefresh();
   }
 
   // FR-PROD-06: Handle deletion triggered from list item
   handleDeleteProduct(item: Item): void {
-    // Example: Add confirmation dialog here using a shared service/component
     if (confirm(`Are you sure you want to delete "${item.productName}"?`)) {
-      this.isLoading.set(true); // Indicate activity
+      this.isLoading.set(true); // Indicate loading during delete
       this.productService.deleteItem(item.itemId).subscribe({
         next: () => {
-          this.isLoading.set(false);
+          this.errorMessage.set(null); // Clear any previous error
           // Optionally show success notification
-          this.loadProducts(); // Refresh the list
+          // Refresh the current page after deletion
+          // Consider edge case: deleting last item on a page > 1
+          if (this.paginationMetadata()?.totalCount && this.paginationMetadata()!.totalCount % this.pageSize() === 1 && this.currentPage() > 1) {
+             this.currentPage.update(p => p - 1); // Go to previous page if last item deleted
+          }
+          this.triggerRefresh();
         },
         error: (err: Error) => {
-          this.isLoading.set(false);
+          this.isLoading.set(false); // Stop loading on error
           this.errorMessage.set(`Failed to delete product: ${err.message}`);
           // Optionally show error notification
         }

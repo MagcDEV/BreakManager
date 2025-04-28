@@ -2,10 +2,18 @@
 <header class="app-header">
   <h1>{{ title }}</h1>
   <nav class="app-nav">
-    <!-- Links will be conditionally shown later based on auth state -->
-    <a routerLink="/auth/login" routerLinkActive="active-link">Login</a>
-    <a routerLink="/auth/register" routerLinkActive="active-link">Register</a> <!-- This link -->
-    <!-- ... other links ... -->
+    <!-- Use @if block for conditional rendering based on auth state -->
+    @if (!isAuthenticated()) {
+      <!-- Show Login/Register links when not authenticated -->
+      <a routerLink="/auth/login" routerLinkActive="active-link">Login</a>
+      <a routerLink="/auth/register" routerLinkActive="active-link">Register</a>
+    } @else {
+      <!-- Show protected links and Logout when authenticated -->
+      <a routerLink="/products" routerLinkActive="active-link">Products</a>
+      <a routerLink="/pos" routerLinkActive="active-link">POS</a>
+      <!-- Add a button or link to trigger logout -->
+      <button (click)="logout()" class="logout-button">Logout</button>
+    }
   </nav>
 </header>
 
@@ -14,5 +22,5 @@
 </main>
 
 <footer class="app-footer">
-  <p>&copy; {{ currentYear }} Retail Store</p>
+  <p>&copy; {{ currentYear }} Break Manager</p>
 </footer>

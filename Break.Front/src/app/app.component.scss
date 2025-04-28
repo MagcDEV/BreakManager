@@ -57,6 +57,20 @@
       }
     }
   }
+
+  .logout-button {
+    background: none;
+    border: none;
+    color: #ff4d4d; // Example danger color
+    cursor: pointer;
+    padding: 0.5rem 1rem; // Match link padding if desired
+    font-size: inherit; // Match link font size
+    text-decoration: underline;
+
+    &:hover {
+      color: #cc0000; // Darker red on hover
+    }
+  }
 }
 
 .app-main {

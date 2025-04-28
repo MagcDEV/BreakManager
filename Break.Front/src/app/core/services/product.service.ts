@@ -1,11 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http'; // Import HttpResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Item } from '../models/item.model';
 import { CreateItem } from '../models/create-item.model';
 import { UpdateItem } from '../models/update-item.model';
+import { PaginationMetadata } from '../models/pagination.model'; // Import the new interface
+
+// Define a type for the combined result
+export interface PaginatedResult<T> {
+  items: T[];
+  metadata: PaginationMetadata;
+}
 
 @Injectable({
   providedIn: 'root', // Singleton service available application-wide
@@ -15,15 +22,24 @@ export class ProductService {
   private readonly apiUrl = `${environment.apiUrl}/api/item`; // Base URL for item endpoints
 
   /**
-   * Fetches a list of all products.
+   * Fetches a paginated list of products.
    * FR-PROD-01
-   * @param sort Optional sorting parameters
-   * @param filter Optional filtering parameters
-   * @returns Observable array of Items.
+   * @param pageNumber The page number to retrieve (1-based).
+   * @param pageSize The number of items per page.
+   * @param sort Optional sorting parameters.
+   * @param filter Optional filtering parameters.
+   * @returns Observable of PaginatedResult containing items and metadata.
    */
-  getAllItems(sort?: string, filter?: string): Observable<Item[]> {
-    // Basic example: Add query params if needed (API support required)
-    let params = new HttpParams();
+  getAllItems(
+    pageNumber: number = 1,
+    pageSize: number = 10,
+    sort?: string,
+    filter?: string
+  ): Observable<PaginatedResult<Item>> { // Update return type
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
     if (sort) {
       params = params.set('sort', sort);
     }
@@ -31,7 +47,39 @@ export class ProductService {
       params = params.set('filter', filter);
     }
 
-    return this.http.get<Item[]>(this.apiUrl, { params }).pipe(
+    // Request the full HttpResponse to access headers
+    return this.http.get<Item[]>(this.apiUrl, { params, observe: 'response' }).pipe(
+      map((response: HttpResponse<Item[]>) => {
+        // Extract pagination header
+        const paginationHeader = response.headers.get('X-Pagination');
+        let metadata: PaginationMetadata | null = null;
+
+        if (paginationHeader) {
+          try {
+            metadata = JSON.parse(paginationHeader);
+          } catch (e) {
+            console.error('Could not parse X-Pagination header:', e);
+            // Provide default metadata or handle error appropriately
+            metadata = { currentPage: 1, pageSize: pageSize, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false };
+          }
+        } else {
+           console.warn('X-Pagination header not found.');
+           // Provide default metadata if header is missing
+           metadata = { currentPage: 1, pageSize: pageSize, totalCount: response.body?.length ?? 0, totalPages: 1, hasPreviousPage: false, hasNextPage: false };
+        }
+
+        // Ensure metadata is not null before returning
+        if (!metadata) {
+             throw new Error("Pagination metadata could not be determined.");
+        }
+
+
+        // Return the combined result: items from body, metadata from header
+        return {
+          items: response.body || [], // Use empty array if body is null
+          metadata: metadata
+        };
+      }),
       catchError(this.handleError) // Centralized error handling
     );
   }

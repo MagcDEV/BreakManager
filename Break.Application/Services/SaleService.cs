@@ -16,46 +16,83 @@ public class SaleService(
     )
     {
         // Validate input
-        if (items == null || !items.Any())
-            throw new ArgumentException("Sale must contain at least one item", nameof(items));
+        if (items == null || items.Count == 0)
+        {
+            // Consider using ArgumentNullException if items is null
+            throw new ArgumentException("Sale must contain at least one item.", nameof(items));
+        }
 
-        // Load item details from database
-        var itemIds = items.Select(i => i.ItemId).ToList();
-        var dbItems = await itemRepository.GetItemsAsync();
-        dbItems = dbItems.Where(i => itemIds.Contains(i.ItemId)).ToList();
+        // --- FIX Starts Here ---
+        // Load specific item details efficiently from database
+        var itemIds = items.Select(i => i.ItemId).Distinct().ToList(); // Get distinct IDs
+        // Use the new repository method
+        var dbItems = await itemRepository.GetItemsByIdsAsync(itemIds);
+        // --- FIX Ends Here ---
 
-        if (dbItems.Count() != itemIds.Distinct().Count())
-            throw new ArgumentException("One or more items not found");
+        // Check if all requested distinct items were found
+        if (dbItems.Count != itemIds.Count)
+        {
+            // Find missing IDs for a better error message (optional but helpful)
+            var foundIds = dbItems.Select(i => i.ItemId).ToHashSet();
+            var missingIds = itemIds.Where(id => !foundIds.Contains(id));
+            throw new ArgumentException($"One or more items not found. Missing IDs: {string.Join(", ", missingIds)}");
+        }
+
+        // Use a dictionary for efficient lookup during stock check and processing
+        var dbItemsDictionary = dbItems.ToDictionary(item => item.ItemId);
 
         // Check if there's enough stock for all items
         foreach (var (itemId, quantity) in items)
         {
-            var dbItem = dbItems.First(i => i.ItemId == itemId);
+            // Check quantity requested is positive
+            if (quantity <= 0)
+            {
+                 throw new ArgumentException($"Quantity for item ID {itemId} must be positive.", nameof(items));
+            }
+
+            // Efficiently get the item from the dictionary
+            if (!dbItemsDictionary.TryGetValue(itemId, out var dbItem))
+            {
+                 // This case should technically be caught by the check above, but added for robustness
+                 throw new ArgumentException($"Item with ID {itemId} not found.");
+            }
+
             if (dbItem.QuantityInStock < quantity)
+            {
                 throw new InvalidOperationException(
-                    $"Not enough stock for item {dbItem.ProductName}. Available: {dbItem.QuantityInStock}, Requested: {quantity}"
+                    $"Not enough stock for item '{dbItem.ProductName}' (ID: {itemId}). Available: {dbItem.QuantityInStock}, Requested: {quantity}"
                 );
+            }
         }
+
         // Create new sale
-        var sale = new Sale { SaleDate = DateTime.UtcNow };
+        var sale = new Sale
+        {
+            SaleDate = DateTime.UtcNow,
+            Status = SaleStatus.Draft // Initialize as Draft
+            // Initialize collections to avoid NullReferenceException later
+            // SaleItems = new List<SaleItem>(),
+            // AppliedOffers = new List<AppliedOffer>()
+        };
 
         // Add items to sale
         foreach (var (itemId, quantity) in items)
         {
-            var dbItem = dbItems.First(i => i.ItemId == itemId);
+            // No need to use First() repeatedly, use the dictionary
+            var dbItem = dbItemsDictionary[itemId];
             var saleItem = new SaleItem
             {
                 Sale = sale,
                 ItemId = itemId,
-                Item = dbItem,
+                // Item = dbItem, // EF Core can link this via ItemId automatically
                 Quantity = quantity,
-                UnitPrice = dbItem.UnitPrice,
+                UnitPrice = dbItem.UnitPrice, // Store price at time of sale
                 LineTotal = dbItem.UnitPrice * quantity,
             };
 
             sale.SaleItems.Add(saleItem);
 
-            // Update inventory quantity
+            // Update inventory quantity (EF Core tracks this change on the loaded dbItem)
             dbItem.QuantityInStock -= quantity;
             dbItem.LastUpdated = DateTime.UtcNow;
         }
@@ -69,18 +106,16 @@ public class SaleService(
         // Calculate final total
         sale.Total = sale.SubTotal - sale.DiscountAmount;
 
-        // Save updated items to database
-        foreach (var item in dbItems)
-        {
-            await itemRepository.UpdateItemAsync(item);
-        }
-
-        // Save to database
+        // Save the sale (which includes SaleItems)
+        // EF Core's SaveChanges will also save the changes made to the tracked dbItems (QuantityInStock)
         await saleRepository.SaveSaleAsync(sale);
+
+        // No need to loop and call itemRepository.UpdateItemAsync(item) separately,
+        // as SaveChanges called by SaveSaleAsync should handle the tracked item updates.
+        // Ensure SaveSaleAsync calls DbContext.SaveChangesAsync().
 
         return sale;
     }
-
     public async Task<Sale?> GetSaleByIdAsync(int saleId)
     {
         return await saleRepository.GetSaleByIdAsync(saleId);

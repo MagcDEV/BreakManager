@@ -1,4 +1,4 @@
-namespace Break.Contracts.Requests;
+namespace Break.Application.Models;
 
 public class UpdateItemRequest
 {
@@ -20,6 +20,4 @@ public class UpdateItemRequest
 
     public int MinimumStockLevel { get; set; }
     public int MaximumStockLevel { get; set; }
-    public DateTime DateAdded { get; set; } = DateTime.UtcNow;
-    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 }
