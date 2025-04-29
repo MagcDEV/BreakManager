@@ -1,0 +1,235 @@
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.pos-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; // Two columns: search/add and cart
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr; // Stack columns on smaller screens
+  }
+}
+
+h2, h3 {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+// Basic styling for sections - refine as needed
+.search-section, .cart-section {
+  border: 1px solid #dee2e6;
+  padding: 1.5rem;
+  border-radius: 0.25rem;
+  background-color: #f8f9fa;
+  display: flex; // Use flexbox for better control within sections
+  flex-direction: column; // Stack elements vertically
+}
+
+.search-section {
+  input[type="search"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-sizing: border-box; // Include padding and border in the element's total width and height
+  }
+
+  .search-results {
+    flex-grow: 1; // Allow results to take remaining space
+    overflow-y: auto; // Add scroll if results overflow
+    max-height: 400px; // Limit height
+    border: 1px solid #e9ecef;
+    border-radius: 0.25rem;
+    background-color: white; // White background for results list
+  }
+
+  .search-result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: #e9ecef;
+    }
+
+    .stock-info {
+      color: #6c757d;
+      font-size: 0.9em;
+    }
+  }
+
+  .no-results, .small-loading, .small-error {
+    padding: 0.75rem 1rem;
+    color: #6c757d;
+    font-style: italic;
+  }
+  .small-error { color: #721c24; }
+}
+
+.cart-section {
+  .cart-items {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    flex-grow: 1; // Allow cart items to take space
+    overflow-y: auto; // Scroll if needed
+    max-height: 400px; // Limit height
+  }
+
+  .cart-item {
+    display: grid; // Use grid for better alignment
+    grid-template-columns: 1fr auto auto auto auto; // Name, Price, Qty, Total, Remove
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed #dee2e6;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
+      font-weight: 500;
+    }
+
+    .item-price, .line-total {
+      white-space: nowrap; // Prevent price/total wrapping
+      text-align: right;
+    }
+
+    .quantity-input {
+      width: 60px;
+      padding: 0.3rem;
+      text-align: center;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+    }
+
+    .remove-button {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0 0.5rem;
+      line-height: 1;
+      justify-self: center; // Center the remove button in its grid cell
+
+      &:hover {
+        color: #a71d2a;
+      }
+    }
+  }
+
+  .coupon-section, .totals-section {
+    margin-bottom: 1rem;
+    flex-shrink: 0; // Prevent shrinking
+  }
+
+  .coupon-section {
+    label {
+      margin-right: 0.5rem;
+    }
+    input[type="text"] {
+      padding: 0.3rem 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+  }
+
+  .totals-section {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    text-align: right;
+    p { margin: 0.3rem 0; }
+    .discount { color: #28a745; } // Style for discount
+  }
+
+  .cart-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+    flex-shrink: 0; // Prevent shrinking
+
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    button:first-of-type { // Primary action (Create Sale)
+      background-color: #007bff;
+      color: white;
+      &:hover:not(:disabled) { background-color: #0056b3; }
+    }
+
+    .secondary-button { // Clear Sale
+      background-color: #6c757d;
+      color: white;
+       &:hover:not(:disabled) { background-color: #5a6268; }
+    }
+  }
+
+  .empty-cart-message {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 2rem;
+    flex-grow: 1; // Take space if cart is empty
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Shared loading/error/success styles
+.loading, .error-message, .success-message {
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  flex-shrink: 0; // Prevent shrinking
+}
+.loading { background-color: #e9ecef; color: #495057; }
+.error-message { background-color: #f8d7da; color: #721c24; }
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  display: flex; // Layout for confirm button
+  justify-content: space-between;
+  align-items: center;
+
+  .confirm-button { // Style for confirm button (FR-SALE-05)
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9em;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      &:hover:not(:disabled) { background-color: #218838; }
+      &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}

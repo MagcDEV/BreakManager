@@ -2,10 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http'; // Import HttpResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-import { Item } from '../models/item.model';
-import { CreateItem } from '../models/create-item.model';
-import { UpdateItem } from '../models/update-item.model';
+import { environment } from '../../../../environments/environment';
+import { Item } from '../../../features/products/models/item.model';
+import { CreateItem } from '../../../features/products/models/create-item.model';
+import { UpdateItem } from '../../../features/products/models/update-item.model';
 import { PaginationMetadata } from '../models/pagination.model'; // Import the new interface
 
 // Define a type for the combined result

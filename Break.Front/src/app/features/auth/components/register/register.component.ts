@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router'; // Import RouterLink
 import { AuthService } from '../../../../core/services/auth.service';
-import { RegisterUserRequest } from '../../../../core/models/login-request.model';
+import { RegisterUserRequest } from '../../models/login-request.model';
 
 // Custom validator for matching passwords
 // Placed outside the component class for better reusability and testability

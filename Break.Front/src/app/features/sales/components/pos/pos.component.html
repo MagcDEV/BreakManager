@@ -1,1 +1,109 @@
-<p>pos works!</p>
+<div class="pos-container">
+  <h2>Point of Sale</h2>
+
+  <!-- Product Search Area (FR-SALE-02) -->
+  <div class="search-section">
+    <h3>Add Products</h3>
+    <input
+      type="search"
+      placeholder="Search by name or barcode (min 2 chars)..."
+      #searchInput
+      (input)="onSearchTermChange(searchInput.value)"
+      aria-label="Search products"
+    />
+    @if (searchIsLoading()) {
+      <div class="loading small-loading">Searching...</div>
+    }
+    @if (searchError(); as msg) {
+      <div class="error-message small-error">{{ msg }}</div>
+    }
+    <div class="search-results">
+      <!-- Display search results -->
+      @for (item of searchResults(); track trackByItemId) {
+        <div class="search-result-item" (click)="addItemToSale(item)" role="button" tabindex="0"
+             [attr.aria-label]="'Add ' + item.productName + ' to sale'">
+          <span>{{ item.productName }} ({{ item.unitPrice | currency }})</span>
+          <span class="stock-info">Stock: {{ item.quantityInStock }}</span>
+        </div>
+      } @if (!searchIsLoading() && searchResults().length === 0 && searchInput.value.length >= 2) {
+        <p class="no-results">No products found matching "{{ searchInput.value }}".</p>
+      }
+    </div>
+  </div>
+
+  <!-- Current Sale / Cart Area -->
+  <div class="cart-section">
+    <h3>Current Sale</h3>
+    @if (detailedCartItems().length > 0) {
+      <ul class="cart-items">
+        <!-- Use detailedCartItems for display -->
+        @for (item of detailedCartItems(); track trackByItemId) {
+          <li class="cart-item">
+            <span class="item-name">{{ item.productName }}</span>
+            <!-- Use HTML entity for literal '@' -->
+            <span class="item-price">&#64; {{ item.unitPrice | currency }}</span>
+            <!-- Removed invalid comment from inside the input tag -->
+            <input
+              type="number"
+              [value]="item.quantity"
+              min="1"
+              #qtyInput
+              (change)="updateItemQuantity(item.itemId, qtyInput.value)"
+              (input)="updateItemQuantity(item.itemId, qtyInput.value)"
+              class="quantity-input"
+              [attr.aria-label]="'Quantity for ' + item.productName"
+            />
+            <span class="line-total">{{ item.lineTotal | currency }}</span>
+            <!-- Removed invalid comment from inside the button tag -->
+            <button
+              (click)="removeItemFromSale(item.itemId)"
+              class="remove-button"
+              [attr.aria-label]="'Remove ' + item.productName + ' from sale'"
+            >&times;</button>
+          </li>
+        }
+      </ul>
+
+      <!-- Coupon Code (FR-SALE-04) -->
+      <div class="coupon-section">
+        <label for="coupon">Coupon Code:</label>
+        <!-- Use ngModel for two-way binding -->
+        <input type="text" id="coupon" [(ngModel)]="couponCode" />
+      </div>
+
+      <!-- Totals (FR-SALE-03) -->
+      <div class="totals-section">
+        <p>Subtotal: {{ subTotal() | currency }}</p>
+        @if (discountAmount() > 0) {
+          <p class="discount">Discount: -{{ discountAmount() | currency }}</p>
+        }
+        <p><strong>Total: {{ total() | currency }}</strong></p>
+      </div>
+
+      <!-- Actions (FR-SALE-01) -->
+      <div class="cart-actions">
+        <button (click)="submitSale()" [disabled]="isLoading() || detailedCartItems().length === 0">
+          {{ isLoading() ? 'Creating...' : 'Create Sale' }}
+        </button>
+        <button (click)="resetSale()" [disabled]="isLoading()" class="secondary-button">Clear Sale</button>
+      </div>
+
+    } @else {
+      <p class="empty-cart-message">Add products using the search to start a new sale.</p>
+    }
+
+    <!-- Loading/Error Messages -->
+    @if (isLoading()) { <div class="loading">Processing...</div> }
+    @if (errorMessage(); as msg) { <div class="error-message">{{ msg }}</div> }
+    @if (lastCreatedSaleId(); as saleId) {
+      <div class="success-message">
+        Sale #{{ saleId }} created successfully.
+        <!-- FR-SALE-05: Optional Confirm Button -->
+         <button (click)="confirmSale(saleId)" [disabled]="isLoading()" class="confirm-button">
+           {{ isLoading() ? 'Confirming...' : 'Confirm Sale #' + saleId }}
+         </button>
+      </div>
+    }
+  </div>
+
+</div>

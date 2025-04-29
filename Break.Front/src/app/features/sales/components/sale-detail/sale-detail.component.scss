@@ -1,0 +1,80 @@
+// filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\app\features\sales\components\sale-detail\sale-detail.component.scss
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.sale-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+}
+
+.back-button {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  &:hover { background-color: #5a6268; }
+}
+
+h2, h3 {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.loading, .error-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.loading { background-color: #e9ecef; color: #495057; }
+.error-message { background-color: #f8d7da; color: #721c24; }
+
+.sale-summary {
+  margin-bottom: 2rem;
+  p { margin: 0.5rem 0; }
+  strong { margin-right: 0.5rem; }
+  .discount { color: #28a745; }
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+
+  th, td {
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background-color: #e9ecef;
+    font-weight: 600;
+  }
+
+  td:nth-child(2), // Quantity
+  td:nth-child(3), // Unit Price
+  td:nth-child(4) { // Line Total
+    text-align: right;
+  }
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  // Add styles for confirm/cancel buttons if implemented
+}

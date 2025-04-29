@@ -11,7 +11,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client // Or RenderMode.Blocking
   },
   // Add other parameterized routes here if they exist (e.g., 'sales/:id')
-
+  {
+    path: 'sales/:id', // Add this entry
+    renderMode: RenderMode.Client // Choose Client (default SPA behavior) or Blocking (SSR)
+  },
   // The wildcard route will handle all other routes and attempt to prerender them
   {
     path: '**',

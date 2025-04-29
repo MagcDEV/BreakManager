@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core'; // Import computed
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ProductService, PaginatedResult } from '../../../../core/services/product.service'; // Adjust path, import PaginatedResult
-import { Item } from '../../../../core/models/item.model';
-import { PaginationMetadata } from '../../../../core/models/pagination.model'; // Import PaginationMetadata
+import { ProductService, PaginatedResult } from '../../services/product.service'; // Adjust path, import PaginatedResult
+import { Item } from '../../models/item.model';
+import { PaginationMetadata } from '../../models/pagination.model'; // Import PaginationMetadata
 import { ProductListItemComponent } from '../product-list-item/product-list-item.component';
 import { Observable, EMPTY, Subject, switchMap, tap, startWith } from 'rxjs'; // Import Subject, switchMap, tap, startWith
 import { catchError } from 'rxjs/operators';

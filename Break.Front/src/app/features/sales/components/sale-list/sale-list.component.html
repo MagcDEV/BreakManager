@@ -1,0 +1,47 @@
+<!-- filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\app\features\sales\components\sale-list\sale-list.component.html -->
+<div class="sale-list-container">
+  <h2>Sales History</h2>
+
+  <!-- Loading Indicator -->
+  @if (isLoading()) {
+    <div class="loading">Loading sales...</div>
+  }
+
+  <!-- Error Message -->
+  @if (errorMessage(); as msg) {
+    <div class="error-message">{{ msg }}</div>
+  }
+
+  <!-- Sales Table/List -->
+  @if (!isLoading() && !errorMessage()) {
+    @if (sales().length > 0) {
+      <table class="sales-table">
+        <thead>
+          <tr>
+            <th>Sale ID</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sale of sales(); track trackBySaleId) {
+            <tr>
+              <td>{{ sale.saleId }}</td>
+              <td>{{ sale.saleDate | date:'medium' }}</td> <!-- Format date -->
+              <td>{{ sale.status }}</td>
+              <td>{{ sale.total | currency:'USD':'symbol' }}</td> <!-- Format currency -->
+              <td>
+                <!-- FR-SALE-08: Link to view details -->
+                <a [routerLink]="['/sales', sale.saleId]" class="action-button view-button">View Details</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p>No sales history found.</p>
+    }
+  }
+</div>

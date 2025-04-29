@@ -5,11 +5,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 // Import map operator if needed for complex error parsing, otherwise just tap, catchError, throwError
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { LoginRequest } from '../models/login-request.model';
-import { AuthResponse } from '../models/auth-response.model';
+import { LoginRequest } from '../../features/auth/models/login-request.model';
+import { AuthResponse } from '../../features/auth/models/auth-response.model';
 import { environment } from '../../../environments/environment';
 // Import the RegisterUserRequest model
-import { RegisterUserRequest } from '../models/login-request.model';
+import { RegisterUserRequest } from '../../features/auth/models/login-request.model';
 
 @Injectable({
   providedIn: 'root', // Provided in root for a singleton, tree-shakable service

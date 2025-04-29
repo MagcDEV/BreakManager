@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 // Import RouterLink
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LoginRequest } from '../../../../core/models/login-request.model';
+import { LoginRequest } from '../../models/login-request.model';
 // Import CommonModule if you use NgIf/NgFor etc. in login.component.html
 // import { CommonModule } from '@angular/common';
 

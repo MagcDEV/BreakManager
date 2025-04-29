@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NgIf } from '@angular/common';
-import { ProductService } from '../../../../core/services/product.service'; // Adjust the import path as necessary
-import { Item } from '../../../../core/models/item.model';
-import { CreateItem } from '../../../../core/models/create-item.model';
-import { UpdateItem } from '../../../../core/models/update-item.model';
-import { catchError, switchMap, tap, filter } from 'rxjs/operators';
+import { ProductService } from '../../services/product.service'; // Adjust the import path as necessary
+import { Item } from '../../models/item.model';
+import { CreateItem } from '../../models/create-item.model';
+import { UpdateItem } from '../../models/update-item.model';
+import { catchError, tap } from 'rxjs/operators';
 import { EMPTY, Observable } from 'rxjs';
 // Optional: Import a notification service for user feedback
 // import { NotificationService } from '../../../../core/services/notification.service';

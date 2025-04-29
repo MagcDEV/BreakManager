@@ -1,0 +1,71 @@
+// filepath: c:\Users\manuel.guevara\Documents\workspaces\BreakManager\Break.Front\src\app\features\sales\components\sale-list\sale-list.component.scss
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.sale-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.loading, .error-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.loading { background-color: #e9ecef; color: #495057; }
+.error-message { background-color: #f8d7da; color: #721c24; }
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+
+  th, td {
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #f8f9fa;
+  }
+
+  tbody tr:hover {
+    background-color: #e9ecef;
+  }
+}
+
+.action-button {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  margin-right: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  text-align: center;
+
+  &.view-button {
+    background-color: #17a2b8;
+    color: white;
+    border-color: #17a2b8;
+    &:hover { background-color: #138496; }
+  }
+}

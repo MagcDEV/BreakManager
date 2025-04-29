@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, NgClass, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Item } from '../../../../core/models/item.model'; // Adjust the import path as necessary
+import { Item } from '../../models/item.model'; // Adjust the import path as necessary
 
 @Component({
   selector: 'app-product-list-item',

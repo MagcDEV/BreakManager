@@ -18,13 +18,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/products/products.routes').then(m => m.PRODUCT_ROUTES),
     canActivate: [authGuard] // Apply the guard here
   },
-  /*
   {
     path: 'sales',
     loadChildren: () => import('./features/sales/sales.routes').then(m => m.SALES_ROUTES),
     canActivate: [authGuard] // Apply the guard here if needed
   },
-  */
   // Default route: Redirect to login or a main page like POS
   // The guard on '' might be complex depending on desired behavior.
   // Redirecting to login is often simplest if not authenticated.

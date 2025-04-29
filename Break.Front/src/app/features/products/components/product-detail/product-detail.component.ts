@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AsyncPipe, CurrencyPipe, DatePipe, NgIf } from '@angular/common';
-import { ProductService } from '../../../../core/services/product.service'; // Adjust the import path as necessary
-import { Item } from '../../../../core/models/item.model'; // Adjust the import path as necessary
+import { ProductService } from '../../services/product.service'; // Adjust the import path as necessary
+import { Item } from '../../models/item.model'; // Adjust the import path as necessary
 import { Observable, EMPTY } from 'rxjs';
 import { switchMap, catchError, tap } from 'rxjs/operators';
 

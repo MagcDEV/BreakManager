@@ -1,27 +1,24 @@
 import { Routes } from '@angular/router';
-
-// Import the components that will be routed to within this feature
-// (Assume these components will be created later)
-/* import { SaleListComponent } from './components/sale-list/sale-list.component';
-import { SaleDetailComponent } from './components/sale-detail/sale-detail.component'; */
-
-// Import necessary guards
-// import { authGuard } from '../../core/guards/auth.guard';
+import { authGuard } from '../../core/guards/auth.guard';
+// Import the new components
+import { SaleListComponent } from './components/sale-list/sale-list.component';
+import { SaleDetailComponent } from './components/sale-detail/sale-detail.component';
 
 export const SALES_ROUTES: Routes = [
-/*   {
-    path: '', // Default path for the sales feature (/sales) - shows sales history list
-    component: SaleListComponent,
-    title: 'Sales History',
-    // canActivate: [authGuard], // Protect this route
-  },
+  // FR-SALE-07: Route for sales list
   {
-    path: ':id', // Route for viewing details of a specific past sale (/sales/456)
-    component: SaleDetailComponent,
-    title: 'Sale Details',
-    // canActivate: [authGuard],
-     // You might add a resolver here later to pre-fetch sale data
+    path: '', // Corresponds to '/sales'
+    component: SaleListComponent, // Use direct component reference for standalone
+    canActivate: [authGuard],
+    title: 'Sales History' // Optional: Set browser title
   },
-  // Note: The main POS interface route ('/pos') is likely defined directly in app.routes.ts */
+  // FR-SALE-08: Route for sale details
+  {
+    path: ':id', // Corresponds to '/sales/:id'
+    component: SaleDetailComponent, // Use direct component reference for standalone
+    canActivate: [authGuard],
+    title: 'Sale Details' // Optional: Set browser title
+  },
+  // Note: The main POS interface route ('/pos') is defined directly in app.routes.ts
   // for easier top-level access, rather than being nested under '/sales/pos'.
 ];
