@@ -2,15 +2,13 @@ import { Component, ChangeDetectionStrategy, inject, signal, computed, DestroyRe
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { SaleService } from '../../services/sale.service';
-// Import PaginationMetadata along with PaginatedResult and ProductService
 import { ProductService, PaginatedResult } from '../../../products/services/product.service';
-// Import PaginationMetadata from its correct location
 import { PaginationMetadata } from '../../../products/models/pagination.model';
 import { Item } from '../../../products/models/item.model';
 import { CreateSale, CreateSaleItem } from '../../models/create-sale.model';
 import { Sale } from '../../models/sale.model';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, catchError, EMPTY, tap, Observable, of } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, catchError, EMPTY, tap, Observable, of, finalize } from 'rxjs'; // Added finalize
 
 // Interface to hold cart item details including product info
 interface CartItemDetail extends CreateSaleItem {
@@ -21,24 +19,14 @@ interface CartItemDetail extends CreateSaleItem {
 }
 
 // Define a default empty metadata object conforming to PaginationMetadata
-// Ensure all properties from the interface are included
 const defaultPaginationMetadata: PaginationMetadata = {
-    currentPage: 1,
-    pageSize: 0,
-    totalCount: 0,
-    totalPages: 0,
-    hasPreviousPage: false, // Add missing property
-    hasNextPage: false      // Add missing property
+    currentPage: 1, pageSize: 0, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false
 };
 
 @Component({
   selector: 'app-pos',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CurrencyPipe
-  ],
+  imports: [ CommonModule, FormsModule, CurrencyPipe ],
   templateUrl: './pos.component.html',
   styleUrls: ['./pos.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -46,19 +34,24 @@ const defaultPaginationMetadata: PaginationMetadata = {
 export class PosComponent {
   private readonly saleService = inject(SaleService);
   private readonly productService = inject(ProductService);
-  private readonly destroyRef = inject(DestroyRef); // For takeUntilDestroyed
+  private readonly destroyRef = inject(DestroyRef);
 
   // --- Component State using Signals ---
   readonly couponCode = signal<string>('');
   readonly isLoading = signal(false); // Loading state for sale creation/confirmation
   readonly errorMessage = signal<string | null>(null);
   readonly lastCreatedSaleId = signal<number | null>(null);
-  readonly searchIsLoading = signal(false);
-  readonly searchError = signal<string | null>(null);
 
   // --- Product Search State ---
   private readonly searchTermSubject = new Subject<string>();
   readonly searchResults = signal<Item[]>([]);
+  readonly searchIsLoading = signal(false);
+  readonly searchError = signal<string | null>(null);
+
+  // --- Barcode Scan State ---
+  readonly barcodeInput = signal<string>(''); // Signal for the barcode input field
+  readonly barcodeIsLoading = signal(false);
+  readonly barcodeError = signal<string | null>(null);
 
   // --- Cart State ---
   readonly detailedCartItems = signal<CartItemDetail[]>([]);
@@ -86,7 +79,7 @@ export class PosComponent {
   });
 
   constructor() {
-    // --- Product Search Logic (FR-SALE-02) ---
+    // --- Product Name/Code Search Logic (FR-SALE-02) ---
     this.searchTermSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -94,35 +87,73 @@ export class PosComponent {
         this.searchIsLoading.set(true);
         this.searchError.set(null);
         this.searchResults.set([]);
+        this.clearBarcodeMessages(); // Clear barcode messages on text search
       }),
       switchMap(term => {
         if (!term || term.length < 2) {
           this.searchIsLoading.set(false);
-          // Use the correctly defined defaultPaginationMetadata
           return of({ items: [], metadata: defaultPaginationMetadata } as PaginatedResult<Item>);
         }
+        // Use the searchTerm parameter in getAllItems
         return this.productService.getAllItems(1, 10, term).pipe(
           tap(() => this.searchIsLoading.set(false)),
           catchError(err => {
             this.searchError.set(err.message || 'Failed to search products.');
             this.searchIsLoading.set(false);
-            // Use the correctly defined defaultPaginationMetadata
             return of({ items: [], metadata: defaultPaginationMetadata } as PaginatedResult<Item>);
           })
         );
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(result => {
-      // Ensure result and result.items are not null/undefined before setting
       this.searchResults.set(result?.items ?? []);
     });
   }
 
   // --- Methods ---
 
-  // Trigger search when input changes
+  // Trigger text search when input changes
   onSearchTermChange(term: string): void {
     this.searchTermSubject.next(term);
+  }
+
+  /**
+   * Handles barcode input submission (e.g., Enter key press).
+   * Fetches item by barcode and adds it to the sale if found.
+   */
+  onBarcodeSubmit(): void {
+    const code = this.barcodeInput().trim();
+    if (!code) {
+      this.barcodeError.set('Please enter or scan a barcode.');
+      return;
+    }
+
+    this.barcodeIsLoading.set(true);
+    this.barcodeError.set(null);
+    this.clearSearchMessages(); // Clear text search messages
+
+    this.productService.getItemByBarcode(code).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.barcodeIsLoading.set(false)) // Ensure loading stops
+    ).subscribe({
+      next: (item) => {
+        if (item) {
+          this.addItemToSale(item);
+          this.barcodeInput.set(''); // Clear input on success
+        } else {
+          // This case might not happen if service throws 404 error
+          this.barcodeError.set(`Item with barcode '${code}' not found.`);
+        }
+      },
+      error: (err: Error) => {
+        // Handle specific errors, e.g., 404 Not Found
+        if (err.message?.includes('404')) {
+             this.barcodeError.set(`Item with barcode '${code}' not found.`);
+        } else {
+             this.barcodeError.set(err.message || 'Failed to fetch item by barcode.');
+        }
+      }
+    });
   }
 
   // FR-SALE-02: Add item to sale
@@ -176,7 +207,13 @@ export class PosComponent {
       // Optionally clear search input value here if needed
       return updatedCart; // Return the updated cart
     });
-    // ... rest of the method
+    // Ensure you clear search/barcode errors on successful add
+    this.clearBarcodeMessages();
+    this.clearSearchMessages();
+    this.searchResults.set([]); // Clear search results list
+    // Optionally clear the text search input visually
+    // const searchInput = document.getElementById('productSearchInput') as HTMLInputElement;
+    // if (searchInput) searchInput.value = '';
   }
 
   // FR-SALE-02: Remove item
@@ -295,7 +332,23 @@ export class PosComponent {
     this.searchResults.set([]);
     // Clear search input visually if needed
     // this.lastCreatedSaleId.set(null); // Decide whether to clear confirmation ID
+    this.barcodeInput.set('');
+    this.clearBarcodeMessages();
+    this.clearSearchMessages();
     // ... rest of the method
+  }
+
+  // Helper to clear barcode-related messages
+  private clearBarcodeMessages(): void {
+    this.barcodeError.set(null);
+    this.barcodeIsLoading.set(false);
+  }
+
+  // Helper to clear text search-related messages
+  private clearSearchMessages(): void {
+    this.searchError.set(null);
+    this.searchIsLoading.set(false);
+    // Don't clear searchResults here, let addItemToSale handle it
   }
 
   // Required for @for trackBy

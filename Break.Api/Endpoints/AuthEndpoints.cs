@@ -8,7 +8,10 @@ public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost(
+        var authGroup = app.MapGroup("")
+            .WithTags("Auth");
+
+        authGroup.MapPost(
                 ApiEnpoints.Auth.Login,
                 async (LoginRequest request, IUserService userService) =>
                 {
@@ -31,7 +34,7 @@ public static class AuthEndpoints
             .Produces(StatusCodes.Status401Unauthorized)
             .WithName("Login");
 
-        app.MapPost(
+        authGroup.MapPost(
                 ApiEnpoints.Auth.Register,
                 async (RegisterUserRequest request, IUserService userService) =>
                 {

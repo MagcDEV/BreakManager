@@ -20,8 +20,6 @@ public static class ContractMapping
             QuantityInStock = request.QuantityInStock,
             MinimumStockLevel = request.MinimumStockLevel,
             MaximumStockLevel = request.MaximumStockLevel,
-            DateAdded = request.DateAdded,
-            LastUpdated = request.LastUpdated,
         };
     }
 

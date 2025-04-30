@@ -29,6 +29,17 @@ public class ItemRepository(BreakAppDbContext dbContext) : IItemRepository
     {
         return await dbContext.Items.FindAsync(itemId);
     }
+
+    public async Task<Item?> GetItemByBarcodeAsync(string barcode)
+    {
+        // Query the database for an item matching the barcode.
+        // Use FirstOrDefaultAsync as barcode should ideally be unique.
+        // Use AsNoTracking for read performance.
+        return await dbContext.Items
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Barcode == barcode);
+    }
+
     public IQueryable<Item> GetItemsQuery()
     {
         // Apply AsNoTracking for better read performance
@@ -37,6 +48,7 @@ public class ItemRepository(BreakAppDbContext dbContext) : IItemRepository
             .AsNoTracking()
             .OrderBy(item => item.ProductName); // Or order by ItemId or another suitable property
     }
+
     public async Task<List<Item>> GetItemsByIdsAsync(IEnumerable<int> itemIds)
     {
         // Ensure itemIds is not null or empty before querying

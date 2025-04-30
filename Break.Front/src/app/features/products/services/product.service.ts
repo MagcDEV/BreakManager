@@ -14,6 +14,11 @@ export interface PaginatedResult<T> {
   metadata: PaginationMetadata;
 }
 
+// Define a default empty metadata object conforming to PaginationMetadata
+const defaultPaginationMetadata: PaginationMetadata = {
+    currentPage: 1, pageSize: 0, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false
+};
+
 @Injectable({
   providedIn: 'root', // Singleton service available application-wide
 })
@@ -26,59 +31,53 @@ export class ProductService {
    * FR-PROD-01
    * @param pageNumber The page number to retrieve (1-based).
    * @param pageSize The number of items per page.
-   * @param sort Optional sorting parameters.
-   * @param filter Optional filtering parameters.
+   * @param searchTerm Optional filtering parameters (used for name/barcode search).
    * @returns Observable of PaginatedResult containing items and metadata.
    */
   getAllItems(
     pageNumber: number = 1,
     pageSize: number = 10,
-    sort?: string,
-    filter?: string
+    searchTerm?: string // Use searchTerm for filtering
   ): Observable<PaginatedResult<Item>> { // Update return type
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
 
-    if (sort) {
-      params = params.set('sort', sort);
-    }
-    if (filter) {
-      params = params.set('filter', filter);
+    // Use searchTerm for filtering if provided
+    if (searchTerm) {
+      // Assuming the backend API uses a 'filter' query parameter for searching
+      params = params.set('filter', searchTerm);
     }
 
     // Request the full HttpResponse to access headers
     return this.http.get<Item[]>(this.apiUrl, { params, observe: 'response' }).pipe(
       map((response: HttpResponse<Item[]>) => {
-        // Extract pagination header
+        // Extract pagination metadata from headers
         const paginationHeader = response.headers.get('X-Pagination');
-        let metadata: PaginationMetadata | null = null;
+        let metadata: PaginationMetadata = { ...defaultPaginationMetadata }; // Start with default
 
         if (paginationHeader) {
           try {
             metadata = JSON.parse(paginationHeader);
           } catch (e) {
             console.error('Could not parse X-Pagination header:', e);
-            // Provide default metadata or handle error appropriately
-            metadata = { currentPage: 1, pageSize: pageSize, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false };
+            // Keep default metadata on parse error
           }
         } else {
-           console.warn('X-Pagination header not found.');
-           // Provide default metadata if header is missing
-           metadata = { currentPage: 1, pageSize: pageSize, totalCount: response.body?.length ?? 0, totalPages: 1, hasPreviousPage: false, hasNextPage: false };
+          console.warn('X-Pagination header not found. Using default metadata.');
+          // Adjust default metadata based on response if header is missing
+          const itemCount = response.body?.length ?? 0;
+          metadata = {
+            ...defaultPaginationMetadata, // Spread defaults first
+            currentPage: 1,
+            pageSize: itemCount, // Assume page size is the number of items returned
+            totalCount: itemCount, // Assume total count is the number returned if no header
+            totalPages: 1, // Assume only one page if no header
+          };
         }
-
-        // Ensure metadata is not null before returning
-        if (!metadata) {
-             throw new Error("Pagination metadata could not be determined.");
-        }
-
-
-        // Return the combined result: items from body, metadata from header
-        return {
-          items: response.body || [], // Use empty array if body is null
-          metadata: metadata
-        };
+        // Ensure body is not null, default to empty array if it is
+        const items = response.body ?? [];
+        return { items, metadata };
       }),
       catchError(this.handleError) // Centralized error handling
     );
@@ -136,33 +135,61 @@ export class ProductService {
   }
 
   /**
-   * Basic error handler for HTTP requests.
-   * Logs the error and returns a user-friendly message.
+   * Fetches a single product by its barcode.
+   * @param barcode The barcode string to search for.
+   * @returns Observable of the found Item or null/error if not found.
    */
-  private handleError(error: HttpErrorResponse) {
+  getItemByBarcode(barcode: string): Observable<Item> {
+    // Ensure barcode is properly URL-encoded if it contains special characters
+    const encodedBarcode = encodeURIComponent(barcode);
+    return this.http.get<Item>(`${this.apiUrl}/barcode/${encodedBarcode}`).pipe(
+      catchError(this.handleError) // Reuse existing error handler
+    );
+  }
+  /**
+   * Centralized error handler for HTTP requests.
+   * Logs the error and returns an Observable that emits a user-friendly error message.
+   * @param error The HttpErrorResponse received.
+   * @returns Observable<never>
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('API Error:', error);
     let errorMessage = 'An unknown error occurred!';
+
     if (error.error instanceof ErrorEvent) {
       // Client-side or network error
-      errorMessage = `Error: ${error.error.message}`;
+      errorMessage = `Network error: ${error.error.message}`;
     } else {
       // Backend returned an unsuccessful response code
-      // Try to extract a meaningful message
       if (error.status === 404) {
-        errorMessage = 'Product not found.';
+        // Use a more generic message for 404 as this service might fetch different resources
+        errorMessage = 'Resource not found.';
       } else if (error.status === 400 && error.error) {
          // Handle validation errors or specific messages from backend
          try {
             // Attempt to parse ASP.NET Core validation problem details
-            const errors = error.error.errors || { message: [error.error.detail || error.error] };
-            errorMessage = Object.values(errors).flat().join(' ');
+            const validationErrors = error.error.errors; // ASP.NET Core validation format
+            if (validationErrors) {
+              // Flatten validation messages
+              errorMessage = Object.values(validationErrors).flat().join(' ');
+            } else {
+              // Try to get a general error title or detail
+              errorMessage = error.error.detail || error.error.title || (typeof error.error === 'string' ? error.error : `Bad Request`);
+            }
          } catch (e) {
-            errorMessage = typeof error.error === 'string' ? error.error : `Server error: ${error.status}`;
+            errorMessage = typeof error.error === 'string' ? error.error : `Bad Request`;
          }
-      } else {
-        errorMessage = `Server returned code: ${error.status}, error message is: ${error.message}`;
+      } else if (error.status === 0) {
+        // Likely a CORS issue or network connectivity problem
+        errorMessage = 'Cannot connect to the server. Please check your network connection or CORS configuration.';
+      }
+       else {
+        // Generic server error message
+        const backendError = error.error?.message || error.error?.title || error.message;
+        errorMessage = `Server error (${error.status}): ${backendError}`;
       }
     }
+    // Return an observable that emits the error message wrapped in an Error object
     return throwError(() => new Error(errorMessage));
   }
 }

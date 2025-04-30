@@ -8,7 +8,10 @@ public static class SaleEndpoints
 {
     public static void MapSaleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost(
+        var saleGroup = app.MapGroup("")
+            .WithTags("Sales");
+
+        saleGroup.MapPost(
                 ApiEnpoints.Sale.CreateSale,
                 async (CreateSaleRequest request, ISaleService saleService) =>
                 {
@@ -23,7 +26,7 @@ public static class SaleEndpoints
             )
             .WithName("CreateSale");
 
-        app.MapGet(
+        saleGroup.MapGet(
                 ApiEnpoints.Sale.GetSale,
                 async (int id, ISaleService saleService) =>
                 {
@@ -36,7 +39,7 @@ public static class SaleEndpoints
             )
             .WithName("GetSale");
 
-        app.MapGet(
+        saleGroup.MapGet(
                 ApiEnpoints.Sale.GetAllSales,
                 async (ISaleService saleService) =>
                 {
@@ -47,7 +50,7 @@ public static class SaleEndpoints
             )
             .WithName("GetAllSales");
 
-        app.MapPost(
+        saleGroup.MapPost(
                 ApiEnpoints.Sale.ConfirmSale,
                 async (int id, ISaleService saleService) =>
                 {
@@ -67,7 +70,7 @@ public static class SaleEndpoints
             )
             .WithName("ConfirmSale");
 
-        app.MapPost(
+        saleGroup.MapPost(
                 ApiEnpoints.Sale.CancelSale,
                 async (int id, ISaleService saleService) =>
                 {

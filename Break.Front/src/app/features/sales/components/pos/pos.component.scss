@@ -32,22 +32,73 @@ h2, h3 {
 }
 
 .search-section {
-  input[type="search"] {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    box-sizing: border-box; // Include padding and border in the element's total width and height
+
+  // Styles for the Barcode Scan Area
+  .barcode-scan-area {
+    margin-bottom: 1rem; // Space below barcode area
+
+    label {
+      display: block; // Ensure label is on its own line
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input[type="text"] { // Target barcode input specifically
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+      margin-bottom: 0.5rem; // Space for loading/error messages
+    }
+
+    // Loading/Error messages specific to barcode area
+    .small-loading, .small-error {
+      font-size: 0.9em;
+      margin-top: 0.25rem; // Smaller margin for these messages
+    }
   }
+
+  // Separator style
+  .separator {
+    border: none;
+    border-top: 1px solid #dee2e6;
+    margin: 1.5rem 0; // Add vertical spacing around the separator
+  }
+
+  // Styles for the Text Search Area
+  .text-search-area {
+    label {
+      display: block; // Ensure label is on its own line
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem; // Consistent margin
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+    }
+
+    // Loading/Error messages specific to text search area
+    .small-loading, .small-error {
+      font-size: 0.9em;
+      margin-top: 0.25rem;
+    }
+  }
+
 
   .search-results {
     flex-grow: 1; // Allow results to take remaining space
     overflow-y: auto; // Add scroll if results overflow
-    max-height: 400px; // Limit height
+    max-height: 300px; // Adjusted max-height slightly
     border: 1px solid #e9ecef;
     border-radius: 0.25rem;
     background-color: white; // White background for results list
+    margin-top: 0.5rem; // Space above results list
   }
 
   .search-result-item {
@@ -72,12 +123,11 @@ h2, h3 {
     }
   }
 
-  .no-results, .small-loading, .small-error {
+  .no-results { // Removed shared styling with loading/error
     padding: 0.75rem 1rem;
     color: #6c757d;
     font-style: italic;
   }
-  .small-error { color: #721c24; }
 }
 
 .cart-section {
@@ -232,4 +282,16 @@ h2, h3 {
       &:hover:not(:disabled) { background-color: #218838; }
       &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
+}
+
+// Specific small loading/error styles used within search areas
+.small-loading {
+  font-size: 0.9em;
+  color: #495057;
+  padding: 0.25rem 0; // Less padding
+}
+.small-error {
+  font-size: 0.9em;
+  color: #721c24;
+  padding: 0.25rem 0; // Less padding
 }
